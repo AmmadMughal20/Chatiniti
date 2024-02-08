@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Chat app</title>
+    <style>
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 20%;
+            margin: auto;
+            padding: 20px;
+        }
+        input{
+            margin: 1%;
+            padding: 10px;
+        }
+        a{
+            text-decoration: none;
+        }
+        h1{
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+        }
+        button{
+            width: 20%;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/">
+        <h1>ChatApp</h1>
+    </a>
+    <form method="post" action="/login">
+        <input type="text" placeholder="username" id="username-input" name="username" />
+        <input type="password" placeholder="password" id="password-input" name="password" />
+        {{message}}
+        <button type="submit" name="submit">Sign in</button>
+    </form>
+</body>
+
+</html>
