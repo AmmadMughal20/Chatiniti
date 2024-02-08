@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <script src="http://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <style>
+        body {
+            background-color: aquamarine;
+        }
+
+        .landing-div {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-area {
+            background-color: antiquewhite;
+            display: none;
+            text-align: center;
+            width: 40%;
+            padding: 20px;
+            margin: auto;
+        }
+
+        .chat-messages {
+            height: 70vh;
+            text-align: left;
+            margin: auto;
+        }
+
+        ul {
+            font-family: 'Courier New', Courier, monospace;
+            list-style-type: none;
+        }
+
+        .messages-input {
+
+            width: 90%;
+            padding: 10px;
+        }
+
+        .navul{
+            display: flex;
+            flex-direction: row;
+        }
+
+        li{
+            padding: 10px 20px;
+        }
+
+        a{
+            text-decoration: none;
+            font-weight: 600;
+            color:red;
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-div" >
+        <nav>
+            <ul class="navul">
+                <li>
+                    <a href="/">
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <a href="/about">
+                        About Us
+                    </a>
+                </li>
+                <li>
+                    <a href="/chat">
+                        Chat
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% block main %}
+        {% endblock %}
+    </div>
+</body>
+</html>

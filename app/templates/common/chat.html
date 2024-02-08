@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<style>
+    .landing-div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .chat-area {
+        background-color: antiquewhite;
+        display: none;
+        text-align: center;
+        width: 40%;
+        padding: 20px;
+        margin: auto;
+    }
+
+    .chat-messages {
+        height: 70vh;
+        overflow-y: scroll;
+        text-align: left;
+        margin: auto;
+    }
+
+    ul {
+        font-family: 'Courier New', Courier, monospace;
+        list-style-type: none;
+    }
+
+    .messages-input {
+        width: 90%;
+        padding: 10px;
+        margin: 10px;
+    }
+</style>
+The Chat App
+<div class="landing-div" id="landing-div">
+    <input type="text" id="user_name" placeholder="username" />
+    <button id="submit_btn">Join</button>
+</div>
+<div class="chat-area" id="chat-area">
+    <div class="chat-messages">
+        <ul id="messages-list">
+        </ul>
+    </div>
+    <input id="message-input" class="messages-input" type="text" placeholder="message..." />
+</div>
+
+<script>
+    const socket = io({ autoConnect: false })
+
+    document.getElementById('submit_btn').addEventListener("click", function () {
+        let username = document.getElementById("user_name").value;
+        console.log(username);
+
+        socket.connect();
+
+        socket.on("connect", function () {
+            socket.emit("user_join", username);
+        })
+
+        document.getElementById("landing-div").style.display = 'none';
+        document.getElementById("chat-area").style.display = 'block';
+    })
+
+    document.getElementById('message-input').addEventListener('keyup', function (event) {
+        if (event.key == 'Enter') {
+            let message = document.getElementById('message-input').value;
+            socket.emit('new_message', message);
+            document.getElementById('message-input').value = '';
+        }
+    })
+
+    socket.on("chat", function (data) {
+        let ul = document.getElementById("messages-list");
+        let li = document.createElement("li");
+        li.appendChild(document.createTextNode(data["username"] + ":" + data['message']));
+        ul.appendChild(li);
+        ul.scrollTop = ul.scrollHeight;
+    })
+</script>
+{% endblock %}
