@@ -9,6 +9,8 @@
     <style>
         body {
             background-color: aquamarine;
+            margin: 0px;
+            padding:0px;
         }
 
         .landing-div {
@@ -39,32 +41,40 @@
         }
 
         .messages-input {
-
             width: 90%;
             padding: 10px;
         }
 
+        .nav{
+            width: 100%;
+        }
         .navul{
             display: flex;
             flex-direction: row;
+            background-color: black;
+            margin: 0px;
+            padding: 20px;
+            width: auto;
         }
 
         li{
             padding: 10px 20px;
+            margin: 0px 20px;
+            font-size: 1.25vw;
         }
 
         a{
             text-decoration: none;
             font-weight: 600;
-            color:red;
+            color:rgb(174, 174, 174);
         }
     </style>
 </head>
 <body>
     <div class="landing-div" >
-        <nav>
+        <nav class="nav">
             <ul class="navul">
-                <li>
+                <li class="first-element">
                     <a href="/">
                         Home
                     </a>
