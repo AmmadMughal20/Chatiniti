@@ -6,72 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
     <script src="http://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-    <style>
-        body {
-            background-color: aquamarine;
-            margin: 0px;
-            padding:0px;
-        }
-
-        .landing-div {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .chat-area {
-            background-color: antiquewhite;
-            display: none;
-            text-align: center;
-            width: 40%;
-            padding: 20px;
-            margin: auto;
-        }
-
-        .chat-messages {
-            height: 70vh;
-            text-align: left;
-            margin: auto;
-        }
-
-        ul {
-            font-family: 'Courier New', Courier, monospace;
-            list-style-type: none;
-        }
-
-        .messages-input {
-            width: 90%;
-            padding: 10px;
-        }
-
-        .nav{
-            width: 100%;
-        }
-        .navul{
-            display: flex;
-            flex-direction: row;
-            background-color: black;
-            margin: 0px;
-            padding: 20px;
-            width: auto;
-        }
-
-        li{
-            padding: 10px 20px;
-            margin: 0px 20px;
-            font-size: 1.25vw;
-        }
-
-        a{
-            text-decoration: none;
-            font-weight: 600;
-            color:rgb(174, 174, 174);
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
-    <div class="landing-div" >
+    <div class="landing-div">
         <nav class="nav">
             <ul class="navul">
                 <li class="first-element">
@@ -89,15 +28,24 @@
                         Chat
                     </a>
                 </li>
+                {% if 'user_id' in session %}
                 <li>
-                    <a href="/login">
+                    <a href="/logout">
+                        Logout
+                    </a>
+                </li>
+                {% else %}
+                <li>
+                    <a href="/signin">
                         Login
                     </a>
                 </li>
+                {% endif %}
             </ul>
         </nav>
         {% block main %}
         {% endblock %}
     </div>
 </body>
+
 </html>

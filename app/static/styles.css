@@ -1,0 +1,239 @@
+/* General Styles */
+body {
+    background-color: #f0f8ff;
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: #333;
+}
+
+/* Landing Div */
+.landing-div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
+/* Chat Area */
+.chat-area {
+    background-color: #fff;
+    display: none;
+    text-align: center;
+    width: 90%;
+    max-width: 800px;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat Messages */
+.chat-messages {
+    height: 70vh;
+    text-align: left;
+    margin: auto;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #fafafa;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+/* List Styles */
+ul {
+    font-family: 'Courier New', Courier, monospace;
+    list-style-type: none;
+    padding: 0;
+}
+
+/* Messages Input */
+.messages-input {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Navigation Styles */
+.nav {
+    width: 100%;
+    min-height: 10vh;
+}
+
+.navul {
+    display: flex;
+    flex-direction: row;
+    background-color: black;
+    margin: 0;
+    padding: 20px;
+    width: auto;
+    justify-content: center;
+}
+
+li {
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 1.25vw;
+}
+
+a {
+    text-decoration: none;
+    font-weight: 600;
+    color: rgb(174, 174, 174);
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #fff;
+}
+
+/* Form Theme */
+form {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+input, label, button {
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 1em;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="number"] {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 1em;
+    width: calc(100% - 22px);
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    padding: 10px;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.error {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.bottom_text {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+/* Welcome Section */
+.welcome-section {
+    text-align: center;
+    background-color: #ddd;
+    margin: 20px 0;
+}
+
+.container{
+    width: auto;
+    min-width: 100vw;
+    height: auto;
+    min-height: 70vh;
+    padding: 10vh 10vw;
+    text-align: center;
+}
+
+.section .section-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.about-content {
+    width: 50%;
+    padding-right: 20px;
+}
+
+.about-content h3 {
+    margin-bottom: 10px;
+}
+
+.tech-image {
+    width: 50%;
+    text-align: center;
+}
+
+.tech-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .navul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    li {
+        font-size: 4vw;
+    }
+
+    .chat-area, .form {
+        width: 90%;
+        padding: 10px;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navul {
+        padding: 10px;
+    }
+
+    li {
+        padding: 10px;
+        font-size: 5vw;
+    }
+
+    .chat-messages {
+        height: 50vh;
+    }
+
+    .messages-input {
+        width: 100%;
+    }
+
+    form {
+        width: 90%;
+        padding: 10px;
+    }
+}

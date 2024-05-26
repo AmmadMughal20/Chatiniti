@@ -1,46 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Chat app</title>
-    <style>
-        form {
-            display: flex;
-            flex-direction: column;
-            width: 20%;
-            margin: auto;
-            padding: 20px;
-        }
-        input{
-            margin: 1%;
-            padding: 10px;
-        }
-        a{
-            text-decoration: none;
-        }
-        h1{
-            font-family: 'Courier New', Courier, monospace;
-            text-align: center;
-        }
-        button{
-            width: 20%;
-            margin: auto;
-        }
-    </style>
-</head>
+{% block main %}
+<h1>Login</h1>
 
-<body>
-    <a href="/">
-        <h1>ChatApp</h1>
-    </a>
-    <form method="post" action="/login">
-        <input type="text" placeholder="username" id="username-input" name="username" />
-        <input type="password" placeholder="password" id="password-input" name="password" />
-        {{message}}
-        <button type="submit" name="submit">Sign in</button>
-    </form>
-</body>
+<form method="POST" action="/signin">
+    <input type="text" placeholder="username" id="username-input" name="userId" />
+    <input type="password" placeholder="password" id="password-input" name="password" />
+    {{message}}
+    <button type="submit" name="submit">Sign in</button>
+    <div class="bottom_text">
+        <a href="/signup">
+            Sign Up
+        </a>
+        <a href="/forgotpassword">
+            Forgot Password
+        </a>
+    </div>
 
-</html>
+    {% if error %}
+    <p class="error">{{ error.message }}</p>
+    {% endif %}
+</form>
+
+{% endblock %}

@@ -1,12 +1,126 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<div>
-    <h2>
-        Welcome Mr. {{name}}
-    </h2>
-    <h4>
-        Your phone number is {{phone}}
-    </h4>
+<div class="welcome-section container">
+    {% if 'name' in session %}
+    <h2>Welcome Mr. {{session['name']}}</h2>
+    {% else %}
+    <h2>Welcome Guest User</h2>
+    {% endif %}
+
+    {% if 'phone' in session %}
+    <h2>Your phone no. is {{session['phone']}}</h2>
+    {% else %}
+    <h2>Register to view your phone no. here!</h2>
+    {% endif %}
+</div>
+
+<div class="section container" id="about">
+    <h2>About Me</h2>
+    <div class="section-content about-content">
+        <p>As an individual software engineer, I am dedicated to delivering high-quality solutions tailored to meet your
+            specific needs. With a passion for innovation and expertise in the latest technologies, I strive to exceed
+            expectations and provide exceptional value to my clients.</p>
+        <p>From concept to deployment, I am committed to ensuring that each project is executed with precision and
+            efficiency. Whether you're looking to build a web application, mobile app, or custom software solution, I am
+            here to bring your ideas to life and help you achieve your goals.</p>
+    </div>
+    <div class="tech-image">
+        <img src="https://via.placeholder.com/400" alt="Tech Image">
+    </div>
+</div>
+
+<div class="section container" id="services">
+    <h2>Our Services</h2>
+    <div class="section-content">
+        <p>We provide a range of services to help you achieve the results you're after. Not sure what you need, or what
+            it costs? We can explain what services are right for you and tell you more about our fees.</p>
+        <img src="https://via.placeholder.com/400" alt="Services">
+    </div>
+</div>
+
+<div class="section container" id="testimonials">
+    <h2>Testimonials</h2>
+    <div class="testimonial-scroller">
+        <div class="testimonial">
+            <p>"Great service!"</p>
+            <p>- John Doe</p>
+        </div>
+        <div class="testimonial">
+            <p>"Highly recommend this company."</p>
+            <p>- Jane Smith</p>
+        </div>
+        <div class="testimonial">
+            <p>"Exceptional experience!"</p>
+            <p>- Bob Johnson</p>
+        </div>
+    </div>
+</div>
+
+<div class="section container" id="pricing">
+    <h2>Pricing</h2>
+    <div class="pricing-table">
+        <div class="pricing-card">
+            <h3>Basic</h3>
+            <p>$10 / month</p>
+            <ul>
+                <li>Feature 1</li>
+                <li>Feature 2</li>
+                <li>Feature 3</li>
+            </ul>
+        </div>
+        <div class="pricing-card">
+            <h3>Standard</h3>
+            <p>$20 / month</p>
+            <ul>
+                <li>Feature 1</li>
+                <li>Feature 2</li>
+                <li>Feature 3</li>
+            </ul>
+        </div>
+        <div class="pricing-card">
+            <h3>Premium</h3>
+            <p>$30 / month</p>
+            <ul>
+                <li>Feature 1</li>
+                <li>Feature 2</li>
+                <li>Feature 3</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="section container" id="projects">
+    <h2>Our Projects</h2>
+    <div class="projects-cards">
+        <div class="card">
+            <h3>Project 1</h3>
+            <p>Description of Project 1</p>
+        </div>
+        <div class="card">
+            <h3>Project 2</h3>
+            <p>Description of Project 2</p>
+        </div>
+        <div class="card">
+            <h3>Project 3</h3>
+            <p>Description of Project 3</p>
+        </div>
+    </div>
+</div>
+
+<div class="section container" id="contact">
+    <h2>Contact Us</h2>
+    <form method="POST" action="/send-email">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" required></textarea>
+
+        <button type="submit">Send</button>
+    </form>
 </div>
 {% endblock %}
