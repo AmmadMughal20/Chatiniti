@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<style>
+    table {
+        width: 90%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    #contactForm,
+    #editForm {
+        display: none;
+        margin-top: 20px;
+    }
+
+    #editButton,
+    #cancelEditButton,
+    #submitEditButton {
+        background-color: orange;
+        border: none;
+        cursor: pointer;
+    }
+
+    #cancelbutton {
+        background-color: pink;
+        color: rgb(255, 255, 255);
+        cursor: pointer;
+    }
+
+    #deleteButton {
+        background-color: red;
+        border: none;
+        cursor: pointer;
+    }
+
+    tr:hover {
+        background-color: #d7fdf9;
+    }
+
+    #editButton:hover,
+    #cancelEditButton:hover,
+    #submitEditButton:hover {
+        background-color: darkorange;
+    }
+
+    #cancelbutton:hover {
+        background-color: lightcoral;
+    }
+
+    #deleteButton:hover {
+        background-color: darkred;
+    }
+
+    @media (max-width: 768px) {
+
+        th,
+        td {
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        #editButton,
+        #deleteButton,
+        #cancelbutton,
+        #cancelEditButton,
+        #submitEditButton {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 576px) {
+
+        th,
+        td {
+            padding: 4px;
+            font-size: 12px;
+        }
+
+        #editButton,
+        #deleteButton,
+        #cancelbutton,
+        #cancelEditButton,
+        #submitEditButton {
+            padding: 3px 6px;
+            font-size: 10px;
+        }
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+        }
+
+        th,
+        td {
+            box-sizing: border-box;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        tr {
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+{% if 'user_id' in session %}
+<h1>Contacts List</h1>
+<button id="addContactBtn">Add New Contact</button>
+<div id="contactForm">
+    <h2>Add New Contact</h2>
+    <form action="{{ url_for('contactsfunction') }}" method="POST">
+        <div class="form-group">
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" required>
+        </div>
+        <div class="form-group">
+            <label for="middle_name">Middle Name:</label>
+            <input type="text" id="middle_name" name="middle_name">
+        </div>
+        <div class="form-group">
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone:</label>
+            <input type="text" id="phone" name="phone" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <button type="submit">Submit</button>
+        <button id="cancelbutton">Cancel</button>
+    </form>
+</div>
+<div id="editForm">
+    <h2>Edit Contact</h2>
+    <form action="{{ url_for('contactsfunction') }}" method="PUT" id="editContactForm">
+        <input type="hidden" id="edit_contact_id" name="contact_id">
+        <div class="form-group">
+            <label for="edit_first_name">First Name:</label>
+            <input type="text" id="edit_first_name" name="first_name" required>
+        </div>
+        <div class="form-group">
+            <label for="edit_middle_name">Middle Name:</label>
+            <input type="text" id="edit_middle_name" name="middle_name">
+        </div>
+        <div class="form-group">
+            <label for="edit_last_name">Last Name:</label>
+            <input type="text" id="edit_last_name" name="last_name" required>
+        </div>
+        <div class="form-group">
+            <label for="edit_phone">Phone:</label>
+            <input type="text" id="edit_phone" name="phone" required>
+        </div>
+        <div class="form-group">
+            <label for="edit_email">Email:</label>
+            <input type="email" id="edit_email" name="email" required>
+        </div>
+        <button type="submit" id="submitEditButton">Submit</button>
+        <button id="cancelEditButton">Cancel</button>
+    </form>
+</div>
+<table>
+    <thead>
+        <tr>
+            <th>ContactId</th>
+            <th>First Name</th>
+            <th>Middle Name</th>
+            <th>Last Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Created At</th>
+            <th>Update At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contact in contacts %}
+        <tr>
+            <td>{{ contact[0] }}</td>
+            <td>{{ contact[1] }}</td>
+            <td>{{ contact[2] }}</td>
+            <td>{{ contact[3] }}</td>
+            <td>{{ contact[4] }}</td>
+            <td>{{ contact[5] }}</td>
+            <td>{{ contact[6] }}</td>
+            <td>{{ contact[7] }}</td>
+            <td>
+                <button id="editButton"
+                    onclick="editContact('{{ contact[0] }}', '{{ contact[1] }}', '{{ contact[2] }}', '{{ contact[3] }}', '{{ contact[4] }}', '{{ contact[5] }}')">Edit</button>
+                <button id="deleteButton" onclick="deleteContact('{{ contact[0] }}')">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div>
+    Login to view contacts
+</div>
+{% endif %}
+
+<script>
+    document.getElementById('addContactBtn').addEventListener('click', function () {
+        var form = document.getElementById('contactForm');
+        form.style.display = 'block';
+        this.style.display = 'none';
+    });
+
+    document.getElementById('cancelbutton').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent form submission
+        var form = document.getElementById('contactForm');
+        form.style.display = 'none';
+        document.getElementById('addContactBtn').style.display = 'block';
+    });
+
+    function deleteContact(contactId) {
+        if (confirm("Are you sure you want to delete this contact?")) {
+            fetch('/contacts/' + contactId, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload(); // Reload the page after successful deletion
+                    } else {
+                        response.json().then(data => alert("Failed to delete contact: " + data.message));
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+
+    function editContact(id, first_name, middle_name, last_name, phone, email) {
+        var formdiv = document.getElementById('editForm');
+        var form = document.getElementById('editContactForm');
+        document.getElementById('edit_contact_id').value = id;
+        document.getElementById('edit_first_name').value = first_name;
+        document.getElementById('edit_middle_name').value = middle_name;
+        document.getElementById('edit_last_name').value = last_name;
+        document.getElementById('edit_phone').value = phone;
+        document.getElementById('edit_email').value = email;
+        formdiv.style.display = 'block';
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Collect form data
+            var formData = new FormData(form); // Here is where the error is occurring
+
+            // Send form data using fetch or XMLHttpRequest
+            fetch('/contacts/' + id, {
+                method: 'PUT',
+                body: formData
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload(); // Reload the page after successful submission
+                    } else {
+                        response.json().then(data => alert("Failed to update contact: " + data.message));
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+    }
+
+    document.getElementById('cancelEditButton').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent form submission
+        var form = document.getElementById('editForm');
+        form.style.display = 'none';
+    });
+</script>
+
+{% endblock %}

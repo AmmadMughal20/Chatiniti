@@ -2,6 +2,10 @@ from flask import Flask, render_template,request, redirect, url_for, jsonify, fl
 from flask_socketio import SocketIO, emit
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
+from services.chat_services import get_conversations_and_participants, get_latest_conversation_with_participents, get_messages_by_conversation
+from services.contact_services import add_user_contact, create_contact, delete_contact, get_contact, get_contacts, remove_user_contact, update_contact
+from services.friendship_services import get_friends
+from services.user_services import getUserById
 from validations import validate_userId, validate_roleTitle, validate_userName, validate_age, validate_email, validate_phone, validate_password, validate_email_for_update, validate_phone_for_update, validate_role
 from flask_cors import CORS
 from db import db_connection
@@ -35,59 +39,6 @@ if __name__ == '__main__':
     socketio.run(app)
 
 users = {}
-contacts = [
-    {"id": 0, "name": "John Doe", "image": "https://via.placeholder.com/150"},
-    {"id": 1, "name": "Jane Smith", "image": "https://via.placeholder.com/150"},
-    {"id": 2, "name": "Alice Johnson", "image": "https://via.placeholder.com/150"},
-    {"id": 3, "name": "Michael Brown", "image": "https://via.placeholder.com/150"},
-    {"id": 4, "name": "Emily Davis", "image": "https://via.placeholder.com/150"},
-    {"id": 5, "name": "William Wilson", "image": "https://via.placeholder.com/150"},
-    {"id": 6, "name": "Emma Taylor", "image": "https://via.placeholder.com/150"},
-    {"id": 7, "name": "Matthew Moore", "image": "https://via.placeholder.com/150"},
-    {"id": 8, "name": "Olivia Anderson", "image": "https://via.placeholder.com/150"},
-    {"id": 9, "name": "James White", "image": "https://via.placeholder.com/150"},
-    {"id": 10, "name": "Sophia Martinez", "image": "https://via.placeholder.com/150"},
-    {"id": 11, "name": "David Thompson", "image": "https://via.placeholder.com/150"},
-    {"id": 12, "name": "Isabella Harris", "image": "https://via.placeholder.com/150"},
-    {"id": 13, "name": "Daniel Young", "image": "https://via.placeholder.com/150"},
-    {"id": 14, "name": "Amelia Clark", "image": "https://via.placeholder.com/150"},
-    {"id": 15, "name": "Joseph Lewis", "image": "https://via.placeholder.com/150"},
-    {"id": 16, "name": "Charlotte Allen", "image": "https://via.placeholder.com/150"},
-    {"id": 17, "name": "Benjamin King", "image": "https://via.placeholder.com/150"},
-    {"id": 18, "name": "Mia Wright", "image": "https://via.placeholder.com/150"},
-    {"id": 19, "name": "Andrew Scott", "image": "https://via.placeholder.com/150"},
-    {"id": 20, "name": "Harper Hill", "image": "https://via.placeholder.com/150"},
-    {"id": 21, "name": "Matthew Garcia", "image": "https://via.placeholder.com/150"},
-    {"id": 22, "name": "Evelyn Lee", "image": "https://via.placeholder.com/150"},
-    {"id": 23, "name": "William Walker", "image": "https://via.placeholder.com/150"},
-    {"id": 24, "name": "Abigail Perez", "image": "https://via.placeholder.com/150"},
-    {"id": 25, "name": "Alexander Hall", "image": "https://via.placeholder.com/150"},
-    {"id": 26, "name": "Emily Hernandez", "image": "https://via.placeholder.com/150"},
-    {"id": 27, "name": "Daniel Green", "image": "https://via.placeholder.com/150"},
-    {"id": 28, "name": "Madison Carter", "image": "https://via.placeholder.com/150"},
-    {"id": 29, "name": "Josephine Adams", "image": "https://via.placeholder.com/150"},
-]
-
-def generate_chat_history(num_chats):
-    chat_history = {}
-    for i in range(0, num_chats):
-        chat_history[i] = []
-        senders = ["You", faker.name()]  # Initialize sender list with "You" and a random name
-        for _ in range(random.randint(5, 20)):  # Generate random number of messages for each chat
-            sender = senders.pop(0)  # Alternate sender names
-            senders.append(sender)  # Add the sender back to the list
-            message = {
-                "sender": sender,
-                "message": faker.sentence(),
-                "sendingTime": faker.time(pattern='%I:%M %p'),
-                "deliveredTime": faker.time(pattern='%I:%M %p'),
-                "readTime": faker.time(pattern='%I:%M %p')
-            }
-            chat_history[i].append(message)
-    return chat_history
-
-chat_history = generate_chat_history(30)
-
 
 @app.route('/')
 def index(name='', phone=''):
@@ -103,14 +54,14 @@ def about():
 def signIn():
     if request.method == 'GET':
         return render_template('authentication/login.html')
-    
+
     elif request.method == 'POST':
-        
+
         userId = request.form['userId']
         password = request.form['password']
 
         responseObject = {}
-                
+
         if userId != '':
             userAuthentication = authenticateUserWithUserId(userId, password)
 
@@ -140,7 +91,7 @@ def signIn():
         else:
             responseObject["status"] = 404
             responseObject["message"] = f"UserId is required!"
-            
+
         if responseObject["status"] == 200:
             return redirect(url_for('index'))
         else:
@@ -166,7 +117,7 @@ def createUser(userId, name, age, email, phoneNo, password, role):
                     )
                 )
     connec.commit()
-                
+
     return redirect(url_for('signIn'))
 
 def sendVerificationEmail(email, token):
@@ -175,7 +126,7 @@ def sendVerificationEmail(email, token):
     msg = Message('Verify your email', sender='your_email@example.com', recipients=[email])
     msg.body = f'Click the following link to verify your email: {verification_link}'
     mail.send(msg)
-          
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
@@ -313,43 +264,88 @@ def loginAPI(): #Method to call a formdata API
         else:
             message = response_json['message']
             return render_template('authentication/login.html', message=message)
-        
+
     elif request.method == 'GET':
         return render_template('authentication/login.html')
 
-@app.route('/chat')
-def chat():
-    index = request.args.get('contact_id', default=0, type=int)
-    chat_hist = getChatByIndex(index)
-    contactName = contacts[index]["name"]    
-    return render_template('common/chat.html', contacts=contacts, chat_history=chat_hist, contactName=contactName)
+@app.route('/chat', defaults={'recepent_id': None}, methods=['GET'])
+@app.route('/chat/<recepent_id>', methods=['GET','PUT', 'DELETE'])
+def chat(recepent_id=None):
+    messagesconverted = []
+    messages = []
+    friends = []
+    receiver = None
+    contactName = None
+    latestConversation = None
+    if(session):
+        user_id = session['user_id']
+        friends = get_friends(user_id)   
+        print(friends, 'printing friends')     
+        conversations = get_conversations_and_participants(user_id)
+        if recepent_id:
+            receiver = getUserById(recepent_id)
+            conversation_id = get_conversation_id(conversations, recepent_id)
+            messages = get_messages_by_conversation(conversation_id)
+        else:
+            latestConversation = get_latest_conversation_with_participents(user_id)
+            if latestConversation:
+                conversation_id = latestConversation[0]['conversation_id']
+                recepent_id = latestConversation[0]['participants'][0]['receiver_id']
+                receiver = getUserById(recepent_id)
+                messages = get_messages_by_conversation(conversation_id)
+            
+        for row in messages:
+            if(row[6] == user_id):
+                message = {
+                    "sender": "You",
+                    "message": row[2],
+                    "sendingTime": row[3],
+                    "deliveredTime": row[4],
+                    "readTime": row[5]
+                }
+            else:
+                message = {
+                    "sender": row[6],
+                    "message": row[2],
+                    "sendingTime": row[3],
+                    "deliveredTime": row[4],
+                    "readTime": row[5]
+                }
+            messagesconverted.append(message)
+        if receiver:
+            contactName = receiver[1] + '  ' +receiver[0]
+        
+    return render_template('common/chat.html', contacts=friends, chat_history=messagesconverted, contactName=contactName)
 
-def getChatByIndex(index):
-    return chat_history[index]
-    
+def get_conversation_id(conversations, recipient_id):
+    for conversation in conversations:
+        for participant in conversation['participants']:
+            if participant['receiver_id'] == recipient_id:
+                return conversation['conversation_id']
+    return None  # If no match is found
+
 @socketio.on('connect')
 def handle_connect():
     print('user connected')
-    
+
 @socketio.on('disconnect')
 def handle_disconnect():
     print('user disconnected')
-    
+
 @socketio.on('user_join')
 def handle_user_join(username):
     print(f"User {username} joined!")
     users[username] = request.sid
-    
+
 @socketio.on('new_message')
 def handle_new_message(message):
-    
+
     print(f"New message {message}")
     username = None
     for user in users:
         if users[user] == request.sid:
             username = user
     emit("chat", {"message": message, "username": username}, broadcast=True)
-    
 
 def send_otp_Mail(user_name):
     random_number = random.randint(1000, 9999)
@@ -359,162 +355,171 @@ def send_otp_Mail(user_name):
     mail.send(msg)
     return random_number
 
-
 @app.route('/users', methods=['GET', 'POST'])
 def users():
     connec = db_connection()
     curs = connec.cursor()
-    responseObject = {}
+    users = []
 
-    if request.method == 'GET':
-        allUsersQry = """SELECT * FROM USERS"""
-        curs.execute(allUsersQry)
-        users = [
-            {
-                'userId': row['userId'],
-                'name': row['name'],
-                'age': row['age'],
-                'email': row['email'],
-                'phone': row['phone'],
-                'roleId': row['roleId']
-            }
-            for row in curs.fetchall()
-        ]
+    if 'user_id' in session:
+        logged_in_user_id = session['user_id']
 
-        if len(users) > 0:
-            responseObject["status"] = 200
-            responseObject["data"] = users
-            responseObject["message"] = "Data received successfully!"
-        else:
-            responseObject["status"] = 404
-            responseObject["data"] = users
-            responseObject["message"] = "No users found!"
-        return jsonify(responseObject)
+        if request.method == 'GET':
+            allUsersQry = """
+                SELECT u.userid, u.name, u.age, u.email, u.phone,
+                       f.status, 
+                       CASE
+                           WHEN f.user_id1 = %s THEN 'requested'
+                           WHEN f.user_id2 = %s THEN 'received'
+                           ELSE 'none'
+                       END AS friendship_direction
+                FROM users u
+                LEFT JOIN friendships f ON
+                    (u.userid = f.user_id1 AND f.user_id2 = %s)
+                    OR (u.userid = f.user_id2 AND f.user_id1 = %s)
+            """
+            curs.execute(allUsersQry, (logged_in_user_id, logged_in_user_id, logged_in_user_id, logged_in_user_id))
+            usersArray = curs.fetchall()
 
-    if request.method == 'POST':
-        new_user_id = request.form['userId']
-        new_user_name = request.form['name']
-        new_user_age = request.form['age']
-        new_user_email = request.form['email']
-        new_user_phone = request.form['phone']
-        new_user_password = request.form['password']
-        new_user_role = request.form['roleId']
+            for row in usersArray:
+                if row[0] != logged_in_user_id:
+                    user = {
+                        "userId": row[0],
+                        "name": row[1],
+                        "age": row[2],
+                        "email": row[3],
+                        "phone": row[4],
+                        "friendship_status": row[5] if row[5] else 'None',
+                        "friendship_direction": row[6]
+                    }
+                    users.append(user)
 
-        userIdValidation = validate_userId(new_user_id)
+        if request.method == 'POST':
+            new_user_id = request.form['userId']
+            new_user_name = request.form['name']
+            new_user_age = request.form['age']
+            new_user_email = request.form['email']
+            new_user_phone = request.form['phone']
+            new_user_password = request.form['password']
+            new_user_role = request.form['roleId']
 
-        if userIdValidation == 1:
-            responseObject["status"] = 401
-            responseObject["message"] = f"UserId already exists!"
-            return jsonify(responseObject)
+            userIdValidation = validate_userId(new_user_id)
 
-        userNameValidation = validate_userName(new_user_name)
-
-        if userNameValidation == 1:
-            responseObject["status"] = 402
-            responseObject["message"] = f"Username can not be empty!"
-            return jsonify(responseObject)
-        elif userNameValidation == 2:
-            responseObject["status"] = 403
-            responseObject["message"] = f"Username can not contain special characters!"
-            return jsonify(responseObject)
-
-        userAgeValidation = validate_age(new_user_age)
-
-        if userAgeValidation == 1:
-            responseObject["status"] = 404
-            responseObject["message"] = f"Age can contain numbers only!"
-            return jsonify(responseObject)
-        elif userAgeValidation == 2:
-            responseObject["status"] = 405
-            responseObject["message"] = f"Age can not be 0 or empty!"
-            return jsonify(responseObject)
-
-        userEmailValidation = validate_email(new_user_email)
-
-        if userEmailValidation == 1:
-            responseObject["status"] = 406
-            responseObject["message"] = f"Email already exists!"
-            return jsonify(responseObject)
-        elif userEmailValidation == 2:
-            responseObject["status"] = 407
-            responseObject["message"] = f"Email can not be empty!"
-            return jsonify(responseObject)
-        elif userEmailValidation == 3:
-            responseObject["status"] = 408
-            responseObject["message"] = f"Invalid email format!"
-            return jsonify(responseObject)
-
-        userPhoneValidation = validate_phone(new_user_phone)
-
-        if userPhoneValidation == 1:
-            responseObject["status"] = 409
-            responseObject["message"] = f"Phone already exists!"
-            return jsonify(responseObject)
-        elif userPhoneValidation == 2:
-            responseObject["status"] = 410
-            responseObject["message"] = f"Phone can not be empty!"
-            return jsonify(responseObject)
-        elif userPhoneValidation == 3:
-            responseObject["status"] = 411
-            responseObject["message"] = f"Invalid phone number!"
-            return jsonify(responseObject)
-
-        userPasswordValidation = validate_password(new_user_password)
-
-        if userPasswordValidation == 1:
-            responseObject["status"] = 412
-            responseObject["message"] = f"Phone can not be empty!"
-            return jsonify(responseObject)
-        elif userPasswordValidation == 2:
-            responseObject["status"] = 413
-            responseObject["message"] = f"Password must contain atleast 8 characters including capital, small alphabets and numeric digits!"
-            return jsonify(responseObject)
-
-        userRoleValidation = validate_role(new_user_role)
-
-        if userRoleValidation == 1:
-            responseObject["status"] = 414
-            responseObject["message"] = f"Role doesn't exists. Enter correct role id!"
-            return jsonify(responseObject)
-
-        if userIdValidation == 0 and userNameValidation == 0 and userAgeValidation == 0 and userEmailValidation == 0 and userPhoneValidation == 0 and userPasswordValidation == 0 and userRoleValidation == 0:
-            print(request.form["status"])
-            if request.form["status"] == '1':
-                otp = send_otp_Mail(request.form['name'])
-                responseObject["status"] = 200
-                responseObject["OTP"] = otp
-                responseObject["message"] = f"OTP sent successfully to user on email!"
+            if userIdValidation == 1:
+                responseObject["status"] = 401
+                responseObject["message"] = f"UserId already exists!"
                 return jsonify(responseObject)
 
-            elif request.form["status"] == '2':
-                insertBookSqlQuery = """INSERT INTO USERS (userId, name, age, email, phone, password, roleId) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-                curs.execute(
-                    insertBookSqlQuery,
-                    (
-                        new_user_id,
-                        new_user_name,
-                        new_user_age,
-                        new_user_email,
-                        new_user_phone,
-                        new_user_password,
-                        new_user_role
+            userNameValidation = validate_userName(new_user_name)
+
+            if userNameValidation == 1:
+                responseObject["status"] = 402
+                responseObject["message"] = f"Username can not be empty!"
+                return jsonify(responseObject)
+            elif userNameValidation == 2:
+                responseObject["status"] = 403
+                responseObject["message"] = f"Username can not contain special characters!"
+                return jsonify(responseObject)
+
+            userAgeValidation = validate_age(new_user_age)
+
+            if userAgeValidation == 1:
+                responseObject["status"] = 404
+                responseObject["message"] = f"Age can contain numbers only!"
+                return jsonify(responseObject)
+            elif userAgeValidation == 2:
+                responseObject["status"] = 405
+                responseObject["message"] = f"Age can not be 0 or empty!"
+                return jsonify(responseObject)
+
+            userEmailValidation = validate_email(new_user_email)
+
+            if userEmailValidation == 1:
+                responseObject["status"] = 406
+                responseObject["message"] = f"Email already exists!"
+                return jsonify(responseObject)
+            elif userEmailValidation == 2:
+                responseObject["status"] = 407
+                responseObject["message"] = f"Email can not be empty!"
+                return jsonify(responseObject)
+            elif userEmailValidation == 3:
+                responseObject["status"] = 408
+                responseObject["message"] = f"Invalid email format!"
+                return jsonify(responseObject)
+
+            userPhoneValidation = validate_phone(new_user_phone)
+
+            if userPhoneValidation == 1:
+                responseObject["status"] = 409
+                responseObject["message"] = f"Phone already exists!"
+                return jsonify(responseObject)
+            elif userPhoneValidation == 2:
+                responseObject["status"] = 410
+                responseObject["message"] = f"Phone can not be empty!"
+                return jsonify(responseObject)
+            elif userPhoneValidation == 3:
+                responseObject["status"] = 411
+                responseObject["message"] = f"Invalid phone number!"
+                return jsonify(responseObject)
+
+            userPasswordValidation = validate_password(new_user_password)
+
+            if userPasswordValidation == 1:
+                responseObject["status"] = 412
+                responseObject["message"] = f"Phone can not be empty!"
+                return jsonify(responseObject)
+            elif userPasswordValidation == 2:
+                responseObject["status"] = 413
+                responseObject["message"] = f"Password must contain atleast 8 characters including capital, small alphabets and numeric digits!"
+                return jsonify(responseObject)
+
+            userRoleValidation = validate_role(new_user_role)
+
+            if userRoleValidation == 1:
+                responseObject["status"] = 414
+                responseObject["message"] = f"Role doesn't exists. Enter correct role id!"
+                return jsonify(responseObject)
+
+            if userIdValidation == 0 and userNameValidation == 0 and userAgeValidation == 0 and userEmailValidation == 0 and userPhoneValidation == 0 and userPasswordValidation == 0 and userRoleValidation == 0:
+                print(request.form["status"])
+                if request.form["status"] == '1':
+                    otp = send_otp_Mail(request.form['name'])
+                    responseObject["status"] = 200
+                    responseObject["OTP"] = otp
+                    responseObject["message"] = f"OTP sent successfully to user on email!"
+                    return jsonify(responseObject)
+
+                elif request.form["status"] == '2':
+                    insertBookSqlQuery = """INSERT INTO USERS (userId, name, age, email, phone, password, roleId) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+                    curs.execute(
+                        insertBookSqlQuery,
+                        (
+                            new_user_id,
+                            new_user_name,
+                            new_user_age,
+                            new_user_email,
+                            new_user_phone,
+                            new_user_password,
+                            new_user_role
+                        )
                     )
-                )
-                connec.commit()
-                responseObject["status"] = 200
-                responseObject["message"] = f"User registered successfully!"
-                return jsonify(responseObject)
-            
+                    connec.commit()
+                    responseObject["status"] = 200
+                    responseObject["message"] = f"User registered successfully!"
+                    return jsonify(responseObject)
+
+                else:
+                    responseObject["status"] = 415
+                    responseObject["message"] = f"Some error occured!"
+                    return jsonify(responseObject)
+
             else:
                 responseObject["status"] = 415
                 responseObject["message"] = f"Some error occured!"
                 return jsonify(responseObject)
 
-        else:
-            responseObject["status"] = 415
-            responseObject["message"] = f"Some error occured!"
-            return jsonify(responseObject)
-               
+    return render_template('common/users.html', users=users)
+
 @app.route('/roles', methods=['GET', 'POST'])
 def roles():
     connec = db_connection()
@@ -562,7 +567,6 @@ def roles():
             responseObject["message"] = f"Role added successfully!"
             return jsonify(responseObject)
 
-
 @app.route('/forgotpassword', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'GET':
@@ -586,7 +590,6 @@ def updateToken(user_id, token):
     curs = conn.cursor()
     curs.execute("UPDATE USERS SET token = %s WHERE userId = %s", (token, user_id))
     conn.commit()  # Commit the transaction
-
 
 def generate_random_token():
     # Generate a random 6-digit token
@@ -637,3 +640,148 @@ def reset_password():
             print('Invalid Password!')
             flash('Invalid Password!')
             return redirect(url_for('forgot_password'))
+
+@app.route('/contacts', defaults={'contact_id': None}, methods=['GET', 'POST', 'PUT'])
+@app.route('/contacts/<int:contact_id>', methods=['PUT', 'DELETE'])
+def contactsfunction(contact_id=None):
+    print(request.method, 'printing request method')
+    userIdToGetChats = session.get('user_id')
+
+    if request.method == 'POST':
+        if 'user_id' in session:
+            firstName = request.form['first_name']
+            middleName = request.form.get('middle_name', '')
+            lastName = request.form['last_name']
+            phone = request.form['phone']
+            email = request.form['email']
+            contact = {
+                "first_name": firstName,
+                "last_name": lastName,
+                "middle_name": middleName,
+                "phone": phone,
+                "email": email
+            }
+            newContactId = create_contact(contact)
+            saveContactInUserTable = add_user_contact(newContactId, userIdToGetChats)
+            return redirect(url_for('contactsfunction'))
+
+    if request.method == 'PUT':
+        if 'user_id' not in session:
+            return jsonify({'error': 'User not authenticated'}), 401
+        contact_data = {
+            "first_name": request.form['first_name'],
+            "middle_name": request.form.get('middle_name', ''),
+            "last_name": request.form['last_name'],
+            "phone": request.form['phone'],
+            "email": request.form['email']
+        }
+
+        update = update_contact(contact_id, contact_data)
+        remove_user_contact(userIdToGetChats, contact_id)
+        add_user_contact(contact_id, userIdToGetChats)
+        contactsToDisplay = get_contacts(userIdToGetChats)
+        return render_template('common/contacts.html', contacts=contactsToDisplay)
+
+    if request.method == 'DELETE':
+        if 'user_id' in session:
+            removeContactResult = remove_user_contact(userIdToGetChats, contact_id)
+            deleteContactResult = delete_contact(contact_id)
+            if removeContactResult == 200 and deleteContactResult == 200:
+                return jsonify({'message': 'Contact deleted successfully'}), 200
+            else:
+                return jsonify({'error': 'Failed to delete contact'}), 500
+        return jsonify({'error': 'User not authenticated'}), 401
+
+    if request.method == 'GET':
+        if 'user_id' in session:
+            contactsToDisplay = get_contacts(userIdToGetChats)
+        else:
+            contactsToDisplay = []
+        return render_template('common/contacts.html', contacts=contactsToDisplay)
+
+@app.route('/addFriend', methods=['POST'])
+def addFriend():
+    data = request.get_json()
+    if session:
+        user_id1 = session['user_id']  # Assuming the logged-in user's ID is 1; replace with actual logic
+        user_id2 = data['user_id2']
+
+    if user_id1 == user_id2:
+        return jsonify({'success': False, 'message': "You can't be friends with yourself"}), 400
+
+    try:
+        conn = db_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            INSERT INTO friendships (user_id1, user_id2, status)
+            VALUES (%s, %s, 'pending')
+            ON CONFLICT (user_id1, user_id2) DO NOTHING
+            RETURNING friendship_id;
+        """, (user_id1, user_id2))
+
+        result = cur.fetchone()
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        if result:
+            return redirect(url_for('users'))
+        else:
+            return jsonify({'success': False, 'message': 'Friend request already exists'}), 400
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'success': False, 'message': 'An error occurred while sending friend request'}), 500
+
+@app.route('/acceptFriend', methods=['POST'])
+def acceptFriend():
+    data = request.get_json()
+    user_id1 = session['user_id']
+    user_id2 = data['user_id']
+
+    try:
+        conn = db_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            UPDATE friendships
+            SET status = 'accepted'
+            WHERE (user_id1 = %s AND user_id2 = %s) OR (user_id1 = %s AND user_id2 = %s)
+        """, (user_id2, user_id1, user_id1, user_id2))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return redirect(url_for('users'))
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'success': False, 'message': 'An error occurred while accepting the friend request'}), 500
+
+@app.route('/rejectFriend', methods=['POST'])
+def rejectFriend():
+    data = request.get_json()
+    user_id1 = session['user_id']
+    user_id2 = data['user_id']
+
+    try:
+        conn = db_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            UPDATE friendships
+            SET status = 'rejected'
+            WHERE (user_id1 = %s AND user_id2 = %s) OR (user_id1 = %s AND user_id2 = %s)
+        """, (user_id2, user_id1, user_id1, user_id2))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return redirect(url_for('users'))
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'success': False, 'message': 'An error occurred while rejecting the friend request'}), 500

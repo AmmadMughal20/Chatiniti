@@ -1,10 +1,17 @@
-/* General Styles */
+/* Color Theme */
+:root {
+    --primary-color: #007bff; /* Primary color */
+    --secondary-color: #f9f9f9; /* Secondary color */
+    --accent-color: #45a049; /* Accent color */
+    --text-color: #333; /* Text color */
+}
+
 body {
     background-color: #f0f8ff;
     margin: 0;
     padding: 0;
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    color: #333;
+    color: var(--text-color);
 }
 
 /* Landing Div */
@@ -13,7 +20,6 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
 }
 
 /* Chat Area */
@@ -65,7 +71,7 @@ ul {
 .navul {
     display: flex;
     flex-direction: row;
-    background-color: black;
+    background-color: var(--primary-color); /* Primary color */
     margin: 0;
     padding: 20px;
     width: auto;
@@ -75,13 +81,13 @@ ul {
 li {
     padding: 10px 20px;
     margin: 0 10px;
-    font-size: 1.25vw;
+    font-size: 1rem; /* Adjusted font size */
 }
 
 a {
     text-decoration: none;
     font-weight: 600;
-    color: rgb(174, 174, 174);
+    color: var(--secondary-color); /* Secondary color */
     transition: color 0.3s;
 }
 
@@ -106,37 +112,38 @@ form {
 input, label, button {
     margin: 10px 0;
     padding: 10px;
-    font-size: 1em;
+    font-size: 1rem; /* Adjusted font size */
 }
 
 label {
     font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
+    margin-top: -10px;
+    margin-bottom: -10px;
+    color: var(--text-color); /* Text color */
 }
 
 input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="number"] {
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
-    font-size: 1em;
+    font-size: 1rem; /* Adjusted font size */
     width: calc(100% - 22px);
 }
 
 button {
-    background-color: #4CAF50;
-    color: white;
+    background-color: var(--primary-color); /* Primary color */
+    color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 1rem; /* Adjusted font size */
     padding: 10px;
     margin-top: 20px;
     transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: var(--accent-color); /* Accent color */
 }
 
 .error {
@@ -151,45 +158,176 @@ button:hover {
     margin-top: 20px;
 }
 
-/* Welcome Section */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 .welcome-section {
     text-align: center;
-    background-color: #ddd;
-    margin: 20px 0;
+    margin-bottom: 50px;
 }
 
-.container{
-    width: auto;
-    min-width: 100vw;
-    height: auto;
-    min-height: 70vh;
-    padding: 10vh 10vw;
-    text-align: center;
+#about, #services, #testimonials, #pricing, #projects, #contact {
+    margin-bottom: 50px;
 }
 
-.section .section-content {
+.section h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.section-content {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
 }
 
+.section-content p {
+    margin-bottom: 20px;
+}
+
 .about-content {
-    width: 50%;
-    padding-right: 20px;
-}
-
-.about-content h3 {
-    margin-bottom: 10px;
-}
-
-.tech-image {
-    width: 50%;
-    text-align: center;
+    max-width: 600px;
 }
 
 .tech-image img {
-    max-width: 100%;
-    height: auto;
+    width: 100%;
+    border-radius: 10px;
+}
+
+#features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.feature {
+    flex-basis: calc(33.33% - 20px);
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    background-color: var(--secondary-color); /* Secondary color */
+    margin-bottom: 20px;
+}
+
+.feature .icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.testimonial-slider-container {
+    overflow: hidden;
+}
+
+.testimonial-slider {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.5s ease-in-out;
+}
+
+.testimonial-slide {
+    flex: 0 0 auto;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: var(--secondary-color); /* Secondary color */
+    min-width: 300px;
+}
+
+.testimonial-controls {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.testimonial-controls button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--primary-color); /* Primary color */
+    color: #fff;
+    cursor: pointer;
+}
+
+
+.pricing-table {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.pricing-card {
+    flex: 0 0 auto;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    background-color: var(--secondary-color); /* Secondary color */
+    max-width: 300px;
+}
+
+.pricing-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.pricing-card ul li {
+    margin-bottom: 10px;
+}
+
+.projects-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: var(--secondary-color); /* Secondary color */
+}
+
+#contact form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#contact label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+#contact input[type="text"],
+#contact input[type="email"],
+#contact textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#contact button {
+    padding: 10px 20px;
+    background-color: var(--primary-color); /* Primary color */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Media Queries for responsiveness */
+
+@media screen and (max-width: 768px) {
+    .feature {
+        flex-basis: calc(50% - 20px);
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .feature {
+        flex-basis: 100%;
+    }
 }
 
 /* Responsive Styles */
