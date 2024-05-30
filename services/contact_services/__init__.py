@@ -43,8 +43,6 @@ def get_contacts(user_id):
 def update_contact(id, contact):
     conn = db_connection()
     cur = conn.cursor()
-    print(id, 'printing id in update ----------')
-    print(contact, 'printing id in update ----------')
     cur.execute("""
         UPDATE contacts
         SET first_name = %s, middle_name = %s, last_name = %s, phone = %s, email = %s, updated_at = NOW()

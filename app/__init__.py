@@ -1,5 +1,5 @@
 from flask import Flask, render_template,request, redirect, url_for, jsonify, flash, session
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from services.chat_services import get_conversations_and_participants, get_latest_conversation_with_participents, get_messages_by_conversation
@@ -277,10 +277,9 @@ def chat(recepent_id=None):
     receiver = None
     contactName = None
     latestConversation = None
-    if(session):
+    if 'user_id' in session:
         user_id = session['user_id']
         friends = get_friends(user_id)   
-        print(friends, 'printing friends')     
         conversations = get_conversations_and_participants(user_id)
         if recepent_id:
             receiver = getUserById(recepent_id)
@@ -295,27 +294,50 @@ def chat(recepent_id=None):
                 messages = get_messages_by_conversation(conversation_id)
             
         for row in messages:
-            if(row[6] == user_id):
+            if(row[5] == user_id):
                 message = {
                     "sender": "You",
-                    "message": row[2],
-                    "sendingTime": row[3],
-                    "deliveredTime": row[4],
-                    "readTime": row[5]
+                    "message": row[1],
+                    "sendingTime": row[2],
+                    "deliveredTime": row[3],
+                    "readTime": row[4],
+                    "createdAt": row[6]
                 }
             else:
                 message = {
-                    "sender": row[6],
-                    "message": row[2],
-                    "sendingTime": row[3],
-                    "deliveredTime": row[4],
-                    "readTime": row[5]
+                    "sender": row[5],
+                    "message": row[1],
+                    "sendingTime": row[2],
+                    "deliveredAt": row[3],
+                    "readTime": row[4],
+                    "createdAt": row[6]
                 }
             messagesconverted.append(message)
         if receiver:
             contactName = receiver[1] + '  ' +receiver[0]
         
-    return render_template('common/chat.html', contacts=friends, chat_history=messagesconverted, contactName=contactName)
+    return render_template('common/chat.html', contacts=friends, chat_history=messagesconverted, contactName=contactName, conversation_id=conversation_id)
+
+@socketio.on('send_message')
+def handle_send_message_event(data):
+    print(data['sender'] + 'has sent ' + data['message'] + 'in' + data['conversation_id'])
+    app.logger.info("{} has sent message to the conversation {}: {}".format(data['sender'], data['conversation_id'], data['message']))
+    save_message(data['conversation_id'], data['sender_id'], data['message'])
+    socketio.emit('receive_message', data, room=data['conversation_id'])
+
+@socketio.on('join_conversation')
+def handle_join_conversation_event(data):
+    print(data['userid'] + 'user has joined' + data['conversation_id'])
+    app.logger.info("{} has joined the conversation {}".format(data['userid'], data['conversation_id']))
+    join_room(data['conversation_id'])
+    socketio.emit('join_conversation_announcement', data, room=data['conversation_id'])
+
+@socketio.on('leave_conversation')
+def handle_leave_conversation_event(data):
+    app.logger.info("{} has left the conversation {}".format(data['userid'], data['conversation_id']))
+    leave_room(data['conversation_id'])
+    socketio.emit('leave_conversation_announcement', data, room=data['conversation_id'])
+
 
 def get_conversation_id(conversations, recipient_id):
     for conversation in conversations:
@@ -323,6 +345,56 @@ def get_conversation_id(conversations, recipient_id):
             if participant['receiver_id'] == recipient_id:
                 return conversation['conversation_id']
     return None  # If no match is found
+
+def get_or_create_conversation(user_id, recepent_id):
+    conn = db_connection()
+    cur = conn.cursor()
+
+    # Check if a conversation exists between the two users
+    cur.execute('''
+        SELECT cp1.conversation_id 
+        FROM conversation_participants cp1
+        JOIN conversation_participants cp2 ON cp1.conversation_id = cp2.conversation_id
+        WHERE cp1.user_id = %s AND cp2.user_id = %s
+    ''', (user_id, recepent_id))
+    conversation = cur.fetchone()
+
+    if conversation:
+        return conversation['conversation_id']
+    else:
+        # Create a new conversation
+        cur.execute('INSERT INTO conversations (created_at) VALUES (NOW()) RETURNING id')
+        conversation_id = cur.fetchone()['id']
+
+        # Add participants
+        cur.execute('INSERT INTO conversation_participants (conversation_id, user_id, joined_at) VALUES (%s, %s, NOW())', (conversation_id, user_id))
+        cur.execute('INSERT INTO conversation_participants (conversation_id, user_id, joined_at) VALUES (%s, %s, NOW())', (conversation_id, recepent_id))
+
+        conn.commit()
+        return conversation_id
+
+# Function to get messages by conversation ID
+def get_messages_by_conversation(conversation_id):
+    conn = db_connection()
+    cur = conn.cursor()
+    cur.execute('''
+        SELECT m.id, m.message, m.sending_time, m.delivered_time, m.read_time, m.sender_id, m.created_at, u.name
+        FROM messages m
+        JOIN users u ON m.sender_id = u.userid
+        WHERE m.conversation_id = %s
+        ORDER BY m.created_at ASC
+    ''', (conversation_id,))
+    return cur.fetchall()
+
+# Function to save a message
+def save_message(conversation_id, sender_id, message):
+    conn = db_connection()
+    cur = conn.cursor()
+    cur.execute('''
+        INSERT INTO messages (conversation_id, sender, message, sending_time, created_at, sender_id)
+        VALUES (%s, %s, %s, NOW(), NOW(), %s)
+    ''', (conversation_id, sender_id, message, sender_id))
+    conn.commit()
 
 @socketio.on('connect')
 def handle_connect():
@@ -481,7 +553,6 @@ def users():
                 return jsonify(responseObject)
 
             if userIdValidation == 0 and userNameValidation == 0 and userAgeValidation == 0 and userEmailValidation == 0 and userPhoneValidation == 0 and userPasswordValidation == 0 and userRoleValidation == 0:
-                print(request.form["status"])
                 if request.form["status"] == '1':
                     otp = send_otp_Mail(request.form['name'])
                     responseObject["status"] = 200
@@ -611,7 +682,6 @@ def reset_password():
             if userFound:
                 return render_template('authentication/resetpassword.html', token=token)
             else:
-                print('Invalid reset token.')
                 flash('Invalid reset token.')
                 return redirect(url_for('forgot_password'))
         else:
@@ -624,7 +694,6 @@ def reset_password():
         confirm_password = request.form['confirm_password']
         token = request.form['token']
         if new_password != confirm_password:
-            print('Passwords do not match.')
             flash('Passwords do not match.')
             return redirect(url_for('reset_password', token=token))
         updatingPassword = updatePasswordByToken(token, new_password)
@@ -633,7 +702,6 @@ def reset_password():
             flash('Password reset successfully.')
             return redirect(url_for('signIn'))
         elif updatingPassword == 2:
-            print('Invalid reset token.')
             flash('Invalid reset token.')
             return redirect(url_for('forgot_password'))
         elif updatingPassword == 3:
@@ -644,7 +712,6 @@ def reset_password():
 @app.route('/contacts', defaults={'contact_id': None}, methods=['GET', 'POST', 'PUT'])
 @app.route('/contacts/<int:contact_id>', methods=['PUT', 'DELETE'])
 def contactsfunction(contact_id=None):
-    print(request.method, 'printing request method')
     userIdToGetChats = session.get('user_id')
 
     if request.method == 'POST':

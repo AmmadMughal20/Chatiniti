@@ -37,7 +37,6 @@ def authenticateUserWithUserId(userId, password):
         elif authenticateUser[0]["is_verified"] == False:
             return 4
         else:
-            print(authenticateUser)
             return authenticateUser
 
 def getUserFromDbByEmailPassword(email, password):

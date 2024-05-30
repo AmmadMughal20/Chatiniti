@@ -194,7 +194,7 @@
                         <span class="message">{{ chat.message }}</span>
                     </div>
                     <div class="time-div">
-                        <span class="timestamp">{{ chat.deliveredTime }}</span>
+                        <span class="timestamp">{{ chat.createdAt }}</span>
                     </div>
                 </div>
             </div>
@@ -230,4 +230,48 @@
     Login to view chats
 </div>
 {%endif%}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        var userid = "{{ session['user_id'] }}";
+        var conversationId = "{{ conversation_id }}";
+
+        console.log(conversationId, 'print conversation id')
+        console.log(userid, 'print user id')
+
+        if (conversationId) {
+            socket.emit('join_conversation', {
+                userid: userid,
+                conversation_id: conversationId
+            });
+        }
+
+        // Handle the form submission
+        document.getElementById('send-btn').onclick = function () {
+            var messageInput = document.getElementById('message-input');
+            var message = messageInput.value;
+            if (message.trim()) {
+                socket.emit('send_message', {
+                    message: message,
+                    sender: userid,
+                    conversation_id: conversationId,
+                    sender_id: "{{ session['user_id'] }}",
+                    createdAt: new Date()
+                });
+                messageInput.value = '';
+            }
+        };
+
+        // Listen for incoming messages
+        socket.on('receive_message', function (data) {
+            var messagesDiv = document.getElementById('chat-messages');
+            var newMessage = document.createElement('div');
+            newMessage.classList.add('message-container', data.sender === userid ? 'sent' : 'received');
+            newMessage.innerHTML = '<div><span class="message">' + data.message + '</span></div><div class="time-div"><span class="timestamp">' + data.createdAt + '</span></div>';
+            messagesDiv.appendChild(newMessage);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+    });
+</script>
 {% endblock %}

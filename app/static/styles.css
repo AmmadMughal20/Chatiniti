@@ -20,7 +20,10 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    height: auto;
+    min-height: 75vh;
 }
+
 
 /* Chat Area */
 .chat-area {
@@ -93,6 +96,10 @@ a {
 
 a:hover {
     color: #fff;
+}
+
+.bottom-a{
+    color: #333;
 }
 
 /* Form Theme */
@@ -288,7 +295,6 @@ button:hover {
 }
 
 #contact form {
-    max-width: 600px;
     margin: 0 auto;
 }
 
@@ -314,6 +320,77 @@ button:hover {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.app-info,
+.quick-links,
+.social-media {
+    flex: 1;
+}
+.bottom_links{
+    display: flex;
+}
+.app-info h4,
+.quick-links h4,
+.social-media h4 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+.quick-links ul {
+    list-style: none;
+    padding: 0;
+}
+
+.quick-links li {
+    margin-bottom: 8px;
+}
+
+.quick-links a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.quick-links a:hover {
+    color: #333;
+}
+
+.social-icons {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.social-icons li {
+    margin: 0 10px;
+}
+
+.social-icons a {
+    color: #666;
+    font-size: 24px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+    color: #333;
 }
 
 /* Media Queries for responsiveness */

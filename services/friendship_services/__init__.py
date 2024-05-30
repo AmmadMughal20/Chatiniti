@@ -2,7 +2,6 @@ from db import db_connection
 
 
 def get_friends(user_id):
-    print(user_id, 'user_id')
     con = db_connection()
     curr = con.cursor()
 
