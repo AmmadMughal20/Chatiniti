@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<style>
+    table {
+        width: 90%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    #chatForm #editForm {
+        display: none;
+        margin-top: 20px;
+    }
+
+    #editButton,
+    #cancelEditButton,
+    #submitEditButton {
+        background-color: orange;
+        border: none;
+        cursor: pointer;
+    }
+
+    #cancelbutton {
+        background-color: pink;
+        color: rgb(255, 255, 255);
+        cursor: pointer;
+    }
+
+    #deleteButton {
+        background-color: red;
+        border: none;
+        cursor: pointer;
+    }
+
+    tr:hover {
+        background-color: #d7fdf9;
+    }
+
+    #editButton:hover,
+    #cancelEditButton:hover,
+    #submitEditButton:hover {
+        background-color: darkorange;
+    }
+
+    #cancelbutton:hover {
+        background-color: lightcoral;
+    }
+
+    #deleteButton:hover {
+        background-color: darkred;
+    }
+
+    .status-pending {
+        color: orange;
+    }
+
+    .status-accepted {
+        color: green;
+    }
+
+    .status-rejected {
+        color: red;
+    }
+
+    .status-blocked {
+        color: black;
+    }
+
+    .status-none {
+        color: gray;
+    }
+
+    @media (max-width: 768px) {
+
+        th,
+        td {
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        #editButton,
+        #deleteButton,
+        #cancelbutton,
+        #cancelEditButton,
+        #submitEditButton {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 576px) {
+
+        th,
+        td {
+            padding: 4px;
+            font-size: 12px;
+        }
+
+        #editButton,
+        #deleteButton,
+        #cancelbutton,
+        #cancelEditButton,
+        #submitEditButton {
+            padding: 3px 6px;
+            font-size: 10px;
+        }
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+        }
+
+        th,
+        td {
+            box-sizing: border-box;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        tr {
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+
+{% if 'user_id' in session %}
+<h1>Users List</h1>
+<table>
+    <thead>
+        <tr>
+            <th>UserId</th>
+            <th>Name</th>
+            <th>age</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Friendship Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contact in users %}
+        <tr>
+            <td>{{ contact['userId'] }}</td>
+            <td>{{ contact['name'] }}</td>
+            <td>{{ contact['age'] }}</td>
+            <td>{{ contact['phone'] }}</td>
+            <td>{{ contact['email'] }}</td>
+            <td class="
+                        {% if contact['friendship_status'] == 'pending' %} status-pending 
+                        {% elif contact['friendship_status'] == 'accepted' %} status-accepted 
+                        {% elif contact['friendship_status'] == 'rejected' %} status-rejected 
+                        {% elif contact['friendship_status'] == 'blocked' %} status-blocked 
+                        {% else %} status-none 
+                        {% endif %}
+                    ">{{ contact['friendship_status'] }}</td>
+            <td>
+                {% if contact['friendship_status'] == 'None' %}
+                <form class="friend-form" data-user-id="{{ contact['userId'] }}">
+                    <button type="submit">Send Friend Request</button>
+                </form>
+                {% elif contact['friendship_direction'] == 'received' and contact['friendship_status'] == 'pending' %}
+                <form class="accept-form" data-user-id="{{ contact['userId'] }}">
+                    <button type="submit">Accept Request</button>
+                </form>
+                <form class="reject-form" data-user-id="{{ contact['userId'] }}">
+                    <button type="submit">Reject Request</button>
+                </form>
+                {% endif %}
+                <a href="/chat/{{ contact['userId'] }}">Chat</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div>
+    Login to view users
+</div>
+{% endif %}
+
+<script>
+    function startConversation(recepent_id) {
+        // alert(userId);
+
+        if (confirm("Are you sure you want to start conversation?")) {
+            fetch('/chat/' + recepent_id, {
+                method: 'GET',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload(); // Reload the page after successful deletion
+                    } else {
+                        response.json().then(data => alert("Failed to load chat: " + data.message));
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+
+
+    document.querySelectorAll('.friend-form').forEach(form => {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const userId = this.getAttribute('data-user-id');
+            fetch('/addFriend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id2: userId }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Friend request sent!');
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+
+
+    document.querySelectorAll('.accept-form').forEach(form => {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const userId = this.getAttribute('data-user-id');
+            fetch('/acceptFriend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id: userId }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    if (data.success) {
+                        alert('Friend request accepted!');
+                        location.reload(); // Reload the page to update the status
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+
+    document.querySelectorAll('.reject-form').forEach(form => {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const userId = this.getAttribute('data-user-id');
+            fetch('/rejectFriend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id: userId }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Friend request rejected!');
+                        location.reload(); // Reload the page to update the status
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+
+</script>
+
+{% endblock %}

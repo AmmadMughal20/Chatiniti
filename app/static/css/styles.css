@@ -1,0 +1,454 @@
+/* Color Theme */
+:root {
+    --primary-color: #007bff; /* Primary color */
+    --secondary-color: #f9f9f9; /* Secondary color */
+    --accent-color: #45a049; /* Accent color */
+    --text-color: #333; /* Text color */
+}
+
+body {
+    background-color: #f0f8ff;
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: var(--text-color);
+}
+
+/* Landing Div */
+.landing-div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    min-height: 75vh;
+}
+
+
+/* Chat Area */
+.chat-area {
+    background-color: #fff;
+    display: none;
+    text-align: center;
+    width: 90%;
+    max-width: 800px;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat Messages */
+.chat-messages {
+    height: 70vh;
+    text-align: left;
+    margin: auto;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #fafafa;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+/* List Styles */
+ul {
+    font-family: 'Courier New', Courier, monospace;
+    list-style-type: none;
+    padding: 0;
+}
+
+/* Messages Input */
+.messages-input {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Navigation Styles */
+.nav {
+    width: 100%;
+    min-height: 10vh;
+}
+
+.navul {
+    display: flex;
+    flex-direction: row;
+    background-color: var(--primary-color); /* Primary color */
+    margin: 0;
+    padding: 20px;
+    width: auto;
+    justify-content: center;
+}
+
+li {
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 1rem; /* Adjusted font size */
+}
+
+a {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--secondary-color); /* Secondary color */
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #fff;
+}
+
+.bottom-a{
+    color: #333;
+}
+
+/* Form Theme */
+form {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+input, label, button {
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 1rem; /* Adjusted font size */
+}
+
+label {
+    font-weight: bold;
+    margin-top: -10px;
+    margin-bottom: -10px;
+    color: var(--text-color); /* Text color */
+}
+
+input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="number"] {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 1rem; /* Adjusted font size */
+    width: calc(100% - 22px);
+}
+
+button {
+    background-color: var(--primary-color); /* Primary color */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem; /* Adjusted font size */
+    padding: 10px;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: var(--accent-color); /* Accent color */
+}
+
+.error {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.bottom_text {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.welcome-section {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+#about, #services, #testimonials, #pricing, #projects, #contact {
+    margin-bottom: 50px;
+}
+
+.section h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.section-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.section-content p {
+    margin-bottom: 20px;
+}
+
+.about-content {
+    max-width: 600px;
+}
+
+.tech-image img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+#features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.feature {
+    flex-basis: calc(33.33% - 20px);
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    background-color: var(--secondary-color); /* Secondary color */
+    margin-bottom: 20px;
+}
+
+.feature .icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.testimonial-slider-container {
+    overflow: hidden;
+}
+
+.testimonial-slider {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.5s ease-in-out;
+}
+
+.testimonial-slide {
+    flex: 0 0 auto;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: var(--secondary-color); /* Secondary color */
+    min-width: 300px;
+}
+
+.testimonial-controls {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.testimonial-controls button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--primary-color); /* Primary color */
+    color: #fff;
+    cursor: pointer;
+}
+
+
+.pricing-table {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.pricing-card {
+    flex: 0 0 auto;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    background-color: var(--secondary-color); /* Secondary color */
+    max-width: 300px;
+}
+
+.pricing-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.pricing-card ul li {
+    margin-bottom: 10px;
+}
+
+.projects-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: var(--secondary-color); /* Secondary color */
+}
+
+#contact form {
+    margin: 0 auto;
+}
+
+#contact label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+#contact input[type="text"],
+#contact input[type="email"],
+#contact textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#contact button {
+    padding: 10px 20px;
+    background-color: var(--primary-color); /* Primary color */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.app-info,
+.quick-links,
+.social-media {
+    flex: 1;
+}
+.bottom_links{
+    display: flex;
+}
+.app-info h4,
+.quick-links h4,
+.social-media h4 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+.quick-links ul {
+    list-style: none;
+    padding: 0;
+}
+
+.quick-links li {
+    margin-bottom: 8px;
+}
+
+.quick-links a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.quick-links a:hover {
+    color: #333;
+}
+
+.social-icons {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.social-icons li {
+    margin: 0 10px;
+}
+
+.social-icons a {
+    color: #666;
+    font-size: 24px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+    color: #333;
+}
+
+/* Media Queries for responsiveness */
+
+@media screen and (max-width: 768px) {
+    .feature {
+        flex-basis: calc(50% - 20px);
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .feature {
+        flex-basis: 100%;
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .navul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    li {
+        font-size: 4vw;
+    }
+
+    .chat-area, .form {
+        width: 90%;
+        padding: 10px;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navul {
+        padding: 10px;
+    }
+
+    li {
+        padding: 10px;
+        font-size: 5vw;
+    }
+
+    .chat-messages {
+        height: 50vh;
+    }
+
+    .messages-input {
+        width: 100%;
+    }
+
+    form {
+        width: 90%;
+        padding: 10px;
+    }
+}

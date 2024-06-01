@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="welcome-section container">
+    {% if 'name' in session %}
+    <h2>Welcome, {{ session['name'] }}</h2>
+    {% else %}
+    <h2>Welcome, Guest User</h2>
+    {% endif %}
+
+    {% if 'phone' in session %}
+    <h2>Your phone number: {{ session['phone'] }}</h2>
+    {% else %}
+    <h2>Register to view your phone number here!</h2>
+    {% endif %}
+</div>
+
+<div class="section container" id="about">
+    <h2>About Chatify</h2>
+    <div class="section-content about-content">
+        <p>Chatify is your go-to platform for seamless communication. Whether it's chatting with friends, collaborating
+            with colleagues, or staying connected with loved ones, Chatify has got you covered.</p>
+        <p>With advanced features, secure messaging, and user-friendly interface, Chatify makes communication effortless
+            and enjoyable.</p>
+    </div>
+    <div class="tech-image">
+        <img src="{{ url_for('static', filename='images/test.png') }}" alt="Tech Image">
+    </div>
+</div>
+
+<div class="section container" id="features">
+    <h2>Key Features</h2>
+    <div class="section-content" style="display: flex; flex-direction: row;">
+        <div class="feature">
+            <div class="icon">
+                <i class="fas fa-comment"></i>
+            </div>
+            <div class="feature-details">
+                <h3>Instant Messaging</h3>
+                <p>Chat in real-time with friends and colleagues.</p>
+            </div>
+        </div>
+        <div class="feature">
+            <div class="icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="feature-details">
+                <h3>Group Chats</h3>
+                <p>Create group chats for collaborative discussions.</p>
+            </div>
+        </div>
+        <div class="feature">
+            <div class="icon">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="feature-details">
+                <h3>Video Calls</h3>
+                <p>Make video calls with crystal-clear quality.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section container" id="testimonials">
+    <h2>Testimonials</h2>
+    <div class="testimonial-slider-container">
+        <div class="testimonial-slider">
+            <div class="testimonial-slide">
+                <p>"Great service!"</p>
+                <p>- John Doe</p>
+            </div>
+            <div class="testimonial-slide">
+                <p>"Highly recommend this company."</p>
+                <p>- Jane Smith</p>
+            </div>
+            <div class="testimonial-slide">
+                <p>"Exceptional experience!"</p>
+                <p>- Bob Johnson</p>
+            </div>
+            <div class="testimonial-slide">
+                <p>"Great service!"</p>
+                <p>- John Doe</p>
+            </div>
+            <div class="testimonial-slide">
+                <p>"Highly recommend this company."</p>
+                <p>- Jane Smith</p>
+            </div>
+            <div class="testimonial-slide">
+                <p>"Exceptional experience!"</p>
+                <p>- Bob Johnson</p>
+            </div>
+            <!-- Add more testimonials as needed -->
+        </div>
+    </div>
+    <div class="testimonial-controls">
+        <button id="prevBtn">&lt;</button>
+        <button id="nextBtn">&gt;</button>
+    </div>
+</div>
+
+<div class="section container" id="pricing">
+    <h2>Pricing</h2>
+    <div class="pricing-table">
+        <div class="pricing-card">
+            <h3>Basic</h3>
+            <p>$9.99 / month</p>
+            <ul>
+                <li>Instant Messaging</li>
+                <li>Up to 5 Group Chats</li>
+                <li>No Video Calls</li>
+            </ul>
+        </div>
+        <div class="pricing-card">
+            <h3>Standard</h3>
+            <p>$19.99 / month</p>
+            <ul>
+                <li>Instant Messaging</li>
+                <li>Unlimited Group Chats</li>
+                <li>Video Calls</li>
+            </ul>
+        </div>
+        <div class="pricing-card">
+            <h3>Premium</h3>
+            <p>$29.99 / month</p>
+            <ul>
+                <li>Instant Messaging</li>
+                <li>Unlimited Group Chats</li>
+                <li>Video Calls</li>
+                <li>Custom Emojis</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="section container" id="projects">
+    <h2>Our Projects</h2>
+    <div class="projects-cards">
+        <div class="card">
+            <h3>Project X</h3>
+            <p>A revolutionary chat platform that redefines communication.</p>
+        </div>
+        <div class="card">
+            <h3>Project Y</h3>
+            <p>Empowering teams to collaborate effectively from anywhere.</p>
+        </div>
+        <div class="card">
+            <h3>Project Z</h3>
+            <p>Bringing people closer together through innovative technology.</p>
+        </div>
+    </div>
+</div>
+
+<div class="section container" id="contact">
+    <h2>Contact Us</h2>
+    <form method="POST" action="/send-email">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" required></textarea>
+
+        <button type="submit">Send</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sliderContainer = document.querySelector('.testimonial-slider-container');
+        const slider = document.querySelector('.testimonial-slider');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const slideWidth = slider.clientWidth;
+        const slides = slider.children;
+        const totalSlides = slides.length;
+        let slideIndex = 0;
+        let sliding = false;
+
+        function slideNext() {
+            if (!sliding) {
+                sliding = true;
+                slideIndex++;
+                if (slideIndex >= totalSlides) {
+                    slideIndex = 0;
+                }
+                slider.style.transition = 'transform 0.5s ease-in-out';
+                slider.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
+            }
+        }
+
+        function slidePrev() {
+            if (!sliding) {
+                sliding = true;
+                slideIndex--;
+                if (slideIndex < 0) {
+                    slideIndex = totalSlides - 1;
+                }
+                slider.style.transition = 'transform 0.5s ease-in-out';
+                slider.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
+            }
+        }
+
+        prevBtn.addEventListener('click', function () {
+            slidePrev();
+        });
+
+        nextBtn.addEventListener('click', function () {
+            slideNext();
+        });
+
+        slider.addEventListener('transitionend', function () {
+            sliding = false;
+            if (slideIndex === totalSlides - 1) {
+                slider.style.transition = 'none';
+                slider.style.transform = `translateX(-${slideWidth}px)`;
+                slideIndex = 0;
+            } else if (slideIndex === 0) {
+                slider.style.transition = 'none';
+                slider.style.transform = `translateX(-${(totalSlides - 2) * slideWidth}px)`;
+                slideIndex = totalSlides - 2;
+            }
+        });
+
+        function autoSlide() {
+            setInterval(function () {
+                slideNext();
+            }, 3000); // Auto-slide every 3 seconds
+        }
+
+        autoSlide();
+    });
+
+
+
+</script>
+{% endblock %}
