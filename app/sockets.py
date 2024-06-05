@@ -3,6 +3,7 @@ from flask_socketio import emit, join_room, leave_room
 import time
 import app
 from app import socketio
+from app.services.conversation_services import create_new_conversation
 from app.services.message_services import save_message
 
 online_users = {}
@@ -34,8 +35,13 @@ def get_contact_statuses(data):
 
 @socketio.on('send_message')
 def handle_send_message_event(data):
-    save_message(data['conversation_id'], data['sender_id'], data['message'])
-    socketio.emit('receive_message', data, room=data['conversation_id'])
+    print(data, 'printing data in send message socket')
+    conversation_id = data['conversation_id']
+    # if not conversation_id:
+    #     conversation_id = create_new_conversation(data['sender_id'], data['receiver_id'])
+    save_message(conversation_id, data['sender_id'], data['message'])
+    data['conversation_id'] = conversation_id
+    socketio.emit('receive_message', data, room=conversation_id)
 
 @socketio.on('join_conversation')
 def handle_join_conversation_event(data):

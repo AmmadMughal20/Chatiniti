@@ -1,10 +1,13 @@
 from flask import jsonify, redirect, render_template, g, json, session, url_for, request
 
+from app.models.user_model import User
 from app.services.chat_services import get_conversations_and_participants, get_latest_conversation_with_participents, get_messages_by_conversation
 from app.services.contact_services import add_user_contact, create_contact, delete_contact, get_contacts, remove_user_contact, update_contact
+from app.services.conversation_participents_servies import addReceiverInConversationParticipents, createNewConversationPartcipent
+from app.services.conversation_services import create_new_conversation
 from app.services.friendship_services import get_friends, saveNewFrinedShip, updateFriendShipStatus
-from app.services.user_services import getAllUsers, getUserById
-from app.utils import get_conversation_id
+# from app.services.user_services import getAllUsers, getUserById
+from app.utils import find_element, find_latest_conversations, get_conversation_id
 from . import main
 
 @main.route('/')
@@ -113,39 +116,45 @@ def chat(recepent_id=None):
         friends = get_friends(user_id)   
         conversations = get_conversations_and_participants(user_id)
         if recepent_id:
-            receiver = getUserById(recepent_id)
-            conversation_id = get_conversation_id(conversations, recepent_id)
-            messages = get_messages_by_conversation(conversation_id)
+            receiver = User.getUserById(recepent_id)
+            conversation_of_recepient = find_element(conversations, "user_id2", recepent_id)
+            conversation_id = conversation_of_recepient["conversation_id"]
+            if conversation_id:
+                messages = conversation_of_recepient["messages"]
+            else:
+                conversation_id = create_new_conversation(user_id, recepent_id)
+                createNewConversationPartcipent(user_id, conversation_id)
+                addReceiverInConversationParticipents(recepent_id, conversation_id)
         else:
-            latestConversation = get_latest_conversation_with_participents(user_id)
+            latestConversation = find_latest_conversations(conversations)
             if latestConversation:
-                conversation_id = latestConversation[0]['conversation_id']
-                recepent_id = latestConversation[0]['participants'][0]['receiver_id']
-                receiver = getUserById(recepent_id)
-                messages = get_messages_by_conversation(conversation_id)
+                conversation_id = latestConversation['conversation_id']
+                recepent_id = latestConversation['user_id2']
+                receiver = User.getUserById(recepent_id)
+                messages = latestConversation["messages"]
         for row in messages:
-            if(row[6] == user_id):
+            if(row["sender_id"] == user_id):
                 message = {
                     "sender": "You",
-                    "message": row[2],
-                    "sendingTime": row[3],
-                    "deliveredTime": row[4],
-                    "readTime": row[5],
-                    "createdAt": row[8]
+                    "message": row["message"],
+                    "sendingTime": row["sending_time"],
+                    "deliveredTime": row["delivered_time"],
+                    "readTime": row["read_time"],
+                    "createdAt": row["created_at"]
                 }
             else:
                 message = {
-                    "sender": row[6],
-                    "message": row[2],
-                    "sendingTime": row[3],
-                    "deliveredAt": row[5],
-                    "readTime": row[5],
-                    "createdAt": row[8]
+                    "sender": row["sender_id"],
+                    "message": row["message"],
+                    "sendingTime": row["sending_time"],
+                    "deliveredTime": row["delivered_time"],
+                    "readTime": row["read_time"],
+                    "createdAt": row["created_at"]
                 }
             messagesconverted.append(message)
         if receiver:
             contactName = receiver[1] + '  ' +receiver[0]
-        
+                    
     return render_template('common/chat.html', contacts=friends, chat_history=messagesconverted, contactName=contactName, conversation_id=conversation_id)
 
 @main.route('/addFriend', methods=['POST'])

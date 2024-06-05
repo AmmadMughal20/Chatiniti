@@ -36,3 +36,20 @@ def send_recovery_email_to_user(email, token):
 def generate_random_token():
     # Generate a random 6-digit token
     return str(random.randint(100000, 999999))
+
+def find_element(data, key, value):
+    for item in data:
+        if key in item and item[key] == value:
+            return item
+    return None
+
+
+def find_latest_conversations(conversations):
+    latest_conv = None
+
+    for con in conversations:
+        most_recent_message = max(con["messages"], key=lambda message: message["created_at"])
+        con["most_recent_time"] = most_recent_message["created_at"]
+            
+    latest_conv = max(conversations, key=lambda conversation: conversation["most_recent_time"])
+    return latest_conv

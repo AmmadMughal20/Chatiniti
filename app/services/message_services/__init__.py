@@ -1,10 +1,13 @@
 # Function to save a message
 from app.db import Database
+from app.services.conversation_participents_servies import createNewConversationPartcipent
+from app.services.conversation_services import create_new_conversation
+import random
 
 def save_message(conversation_id, sender_id, message):
+    print(conversation_id, 'printing conversaio_id in save message')
     db = Database()
-    if conversation_id == None:
-        queryToCreateConversation = 'INSERT INTO CONVERSATIONS ()'
+    createNewConversationPartcipent(sender_id, conversation_id)
     db.execute('''
         INSERT INTO messages (conversation_id, sender, message, sending_time, created_at, sender_id)
         VALUES (%s, %s, %s, NOW(), NOW(), %s)

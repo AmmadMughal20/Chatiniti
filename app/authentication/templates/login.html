@@ -8,6 +8,17 @@
     <input type="password" placeholder="password" id="password-input" name="password" />
     {{message}}
     <button type="submit" name="submit">Sign in</button>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul class="flashes">
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
     <div class="bottom_text">
         <a href="/signup" style="color: grey;">
             Sign Up
@@ -17,9 +28,7 @@
         </a>
     </div>
 
-    {% if error %}
-    <p class="error">{{ error.message }}</p>
-    {% endif %}
+
 </form>
 
 {% endblock %}

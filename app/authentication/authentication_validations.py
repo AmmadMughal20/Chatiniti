@@ -25,16 +25,11 @@ def validate_age(age):
         return 0
     
 def validate_email(email):
-    emailRegex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
-
-    emailInDb = emailAlreadyExists(email)
-
-    if emailInDb:
+    email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    if not re.match(email_regex, email):
         return 1
-    elif email == '':
+    elif emailAlreadyExists(email):
         return 2
-    elif bool(re.match(emailRegex, email)) == False:
-        return 3
     else:
         return 0
     
@@ -55,10 +50,8 @@ def validate_phone(phone):
 def validate_password(password):
     passwordRegex = r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
     
-    if password == '':
+    if bool(re.match(passwordRegex, password)) == False:
         return 1
-    elif bool(re.match(passwordRegex, password)) == False:
-        return 2
     else:
         return 0
     

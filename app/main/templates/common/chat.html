@@ -264,7 +264,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var socket = io.connect('http://' + document.domain + ':' + location.port, {
-            query: "user_id= {{ session['user_id' ]}}"
+            query: "user_id= {{ session['user_id'] }}"
         });
 
         socket.on('user_status', function (data) {
@@ -298,11 +298,13 @@
         var userid = "{{ session['user_id'] }}";
         var conversationId = "{{ conversation_id }}";
 
-        if (conversationId) {
-            socket.emit('join_conversation', {
-                userid: userid,
-                conversation_id: conversationId
-            });
+        function joinConversation(conversationId) {
+            if (conversationId) {
+                socket.emit('join_conversation', {
+                    userid: userid,
+                    conversation_id: conversationId
+                });
+            }
         }
 
         function sendMessage() {
@@ -346,7 +348,6 @@
             hours = hours % 12;
             hours = hours ? hours : 12; // the hour '0' should be '12'
             hours = String(hours).padStart(2, '0'); // pad with leading zeros if necessary
-            // return `${year}-${month}-${day} ${hours}:${minutes}:${seconds} ${ampm}`;
             return `${hours}:${minutes} ${ampm}`;
         }
 
@@ -388,6 +389,37 @@
             });
         }
 
+        // Handle contact item click
+        document.querySelectorAll('.item').forEach(function (item) {
+            item.addEventListener('click', function () {
+                var contactId = item.dataset.contactId;
+                loadChat(contactId);
+            });
+        });
+
+        function loadChat(contactId) {
+            fetch(`/chat/${contactId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update chat header
+                    var chatHeader = document.querySelector('.chat-header');
+                    chatHeader.querySelector('h3').innerText = data.contactName;
+                    chatHeader.querySelector('.last-sceen').innerText = `Last seen: ${data.lastLogin}`;
+
+                    // Update chat messages
+                    var chatMessages = document.querySelector('.chat-messages');
+                    chatMessages.innerHTML = '';
+                    data.chat_history.forEach(chat => {
+                        appendMessage(chat, chat.sender === 'You');
+                    });
+
+                    // Update conversation ID
+                    conversationId = data.conversation_id;
+                    joinConversation(conversationId);
+                });
+        }
     });
+</script>
+
 </script>
 {% endblock %}

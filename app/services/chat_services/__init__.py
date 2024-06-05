@@ -3,41 +3,57 @@ from app.db import Database
 
 def get_conversations_and_participants(sender_id):
     db = Database()
-    # Subquery to get conversations where the user is the sender
-    sender_conversations_query = """
-        SELECT DISTINCT c.id, c.title, c.created_at
-        FROM conversations c
-        JOIN messages m ON c.id = m.conversation_id
-        WHERE m.sender_id = %s;
-    """
+
+    sender_conversations_query = "Select distinct user_id, conversation_id, joined_at from conversation_participants where user_id = %s"
     db.execute(sender_conversations_query, (sender_id,))
-    sender_conversations = db.fetchall()
+    results = db.fetchall()
 
-    # Main query to get receivers in each conversation excluding the sender
-    conversations_and_participants = []
-    for conversation in sender_conversations:
-        conversation_id, title, created_at = conversation
-        participants_query = """
-            SELECT u.userid, u.name, u.email
-            FROM users u
-            JOIN conversation_participants cp ON u.userid = cp.user_id
-            WHERE cp.conversation_id = %s AND u.userid != %s;
-        """
-        db.execute(participants_query, (conversation_id, sender_id))
-        participants = db.fetchall()
+    conversations = []
+
+    for result in results:
+        conv = {
+            "user_id1": result[0],
+            "conversation_id": result[1],
+            "joined_at1": result[2],
+            }
+        conversations.append(conv)
+
+    for conv in conversations:
+        conv_id = conv["conversation_id"]
+        receiver_id = None
+        receiver_id_query = "Select user_id, joined_at from conversation_participants where conversation_id = %s and user_id != %s"
+        db.execute(receiver_id_query, (conv_id, sender_id,))
+        result = db.fetchone()
+        receiver_id = result[0]
+        joined_at2 = result[1]
+        conv["user_id2"] = receiver_id
+        conv["joined_at2"] = joined_at2
+
+        conv_title_query = "Select title from conversations where id = %s"
+        db.execute(conv_title_query, (conv_id,))
+        result = db.fetchone()
+        conv["title"] = result[0]
+
+        messages_query = "Select * from messages where conversation_id = %s"
+        db.execute(messages_query, (conv_id,))
+        result = db.fetchall()
+        messages = []
+        for res in result:
+            message = {
+                "message_id": res[0],
+                "sender": res[1],
+                "message": res[2],
+                "sending_time": res[3],
+                "delivered_time": res[4],
+                "read_time": res[5],
+                "sender_id": res[6],
+                "conversation_id": res[7],
+                "created_at": res[8],
+                }
+            messages.append(message)
+        conv["messages"] = messages
         
-        conversation_info = {
-            "conversation_id": conversation_id,
-            "title": title,
-            "created_at": created_at,
-            "participants": [
-                {"receiver_id": p[0], "receiver_username": p[1], "receiver_email": p[2]}
-                for p in participants
-            ]
-        }
-        conversations_and_participants.append(conversation_info)
-
-    return conversations_and_participants
+    return conversations
 
 def get_messages_by_conversation(conversation_id):
     db = Database()
