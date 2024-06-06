@@ -52,6 +52,8 @@ def get_conversations_and_participants(sender_id):
                 }
             messages.append(message)
         conv["messages"] = messages
+
+    print(conversations, 'printing conversations')
         
     return conversations
 

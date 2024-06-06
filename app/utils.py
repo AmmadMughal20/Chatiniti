@@ -48,8 +48,19 @@ def find_latest_conversations(conversations):
     latest_conv = None
 
     for con in conversations:
-        most_recent_message = max(con["messages"], key=lambda message: message["created_at"])
-        con["most_recent_time"] = most_recent_message["created_at"]
-            
-    latest_conv = max(conversations, key=lambda conversation: conversation["most_recent_time"])
+        if con["messages"]:
+            most_recent_message = max(con["messages"], key=lambda message: message["created_at"])
+            con["most_recent_time"] = most_recent_message["created_at"]
+        else:
+            con["most_recent_time"] = None
+
+
+    conversations_with_time = [con for con in conversations if con["most_recent_time"] is not None]
+
+    if conversations_with_time:
+        # Find the conversation with the most recent 'most_recent_time'
+        latest_conv = max(conversations_with_time, key=lambda conversation: conversation["most_recent_time"])
+
+    print(conversations, 'printing conversations')
+    
     return latest_conv

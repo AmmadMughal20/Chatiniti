@@ -298,6 +298,7 @@
         var userid = "{{ session['user_id'] }}";
         var conversationId = "{{ conversation_id }}";
 
+        // Ensure the client joins the conversation room
         function joinConversation(conversationId) {
             if (conversationId) {
                 socket.emit('join_conversation', {
@@ -306,6 +307,8 @@
                 });
             }
         }
+
+        joinConversation(conversationId);
 
         function sendMessage() {
             var messageInput = document.getElementById('message-input');
@@ -361,6 +364,7 @@
         }
 
         socket.on('receive_message', function (data) {
+            console.log(' in receive message socket')
             if (data.sender !== userid)
                 appendMessage({
                     message: data.message,
@@ -419,7 +423,5 @@
                 });
         }
     });
-</script>
-
 </script>
 {% endblock %}
