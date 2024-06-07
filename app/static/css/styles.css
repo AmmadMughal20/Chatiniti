@@ -1,9 +1,10 @@
 /* Color Theme */
 :root {
-    --primary-color: #007bff; /* Primary color */
-    --secondary-color: #f9f9f9; /* Secondary color */
-    --accent-color: #45a049; /* Accent color */
+    --primary-color: #3D60DC; /* Primary color */
+    --secondary-color: #C7D0F6; /* Secondary color */
+    --accent-color: #75b5d0; /* Accent color */
     --text-color: #333; /* Text color */
+    --success-color: #00a11b;
 }
 
 body {
@@ -78,7 +79,16 @@ ul {
     margin: 0;
     padding: 20px;
     width: auto;
+    align-items: center;
     justify-content: center;
+}
+
+.navlogo{
+    margin-right: 100px;
+}
+
+.navusername{
+    margin-left: 100px;
 }
 
 li {
@@ -156,7 +166,7 @@ button:hover {
 .error {
     color: red;
     text-align: center;
-    margin-top: 10px;
+    /* margin-top: 10px; */
 }
 
 .bottom_text {
@@ -171,6 +181,10 @@ button:hover {
     padding: 20px;
 }
 
+.container h1{
+    text-align: center;
+}
+
 .welcome-section {
     text-align: center;
     margin-bottom: 50px;
@@ -183,6 +197,7 @@ button:hover {
 .section h2 {
     font-size: 2rem;
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .section-content {
@@ -193,10 +208,13 @@ button:hover {
 
 .section-content p {
     margin-bottom: 20px;
+    text-align: center;
+    font-size: large;
+    text-align: center;
 }
 
 .about-content {
-    max-width: 600px;
+    max-width: auto;
 }
 
 .tech-image img {
@@ -214,14 +232,19 @@ button:hover {
     flex-basis: calc(33.33% - 20px);
     padding: 20px;
     text-align: center;
+    min-height: 170px;
     border-radius: 10px;
-    background-color: var(--secondary-color); /* Secondary color */
+    background-color: var(--primary-color); /* Secondary color */
     margin-bottom: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    color:white
 }
 
 .feature .icon {
     font-size: 2rem;
     margin-bottom: 10px;
+    color: var(--secondary-color);
 }
 
 .testimonial-slider-container {
@@ -257,6 +280,14 @@ button:hover {
     cursor: pointer;
 }
 
+.toggle-password,
+.toggle-confirm-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
 
 .pricing-table {
     display: flex;
@@ -295,7 +326,14 @@ button:hover {
 }
 
 #contact form {
-    margin: 0 auto;
+    margin: auto;
+    width: 100%;
+}
+
+.errorMessage{
+    color: red;
+    font-size: small;
+    padding-left: 5px;
 }
 
 #contact label {
@@ -306,7 +344,7 @@ button:hover {
 #contact input[type="text"],
 #contact input[type="email"],
 #contact textarea {
-    width: 100%;
+    width: auto;
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid #ccc;
@@ -392,6 +430,128 @@ footer {
 .social-icons a:hover {
     color: #333;
 }
+
+table {
+        width: 90%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    #contactForm,
+    #editForm {
+        display: none;
+        margin-top: 20px;
+    }
+
+    #editButton,
+    #cancelEditButton,
+    #submitEditButton {
+        background-color: orange;
+        border: none;
+        cursor: pointer;
+    }
+
+    #cancelbutton {
+        background-color: lightcoral;
+        color: rgb(255, 255, 255);
+        cursor: pointer;
+    }
+
+    #deleteButton {
+        background-color: red;
+        border: none;
+        cursor: pointer;
+    }
+
+    tr:hover {
+        background-color: #d7fdf9;
+    }
+
+    #editButton:hover,
+    #cancelEditButton:hover,
+    #submitEditButton:hover {
+        background-color: darkorange;
+    }
+
+    #cancelbutton:hover {
+        background-color: pink;
+    }
+
+    #deleteButton:hover {
+        background-color: darkred;
+    }
+
+    .success{
+        color: var(--success-color);
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+
+        th,
+        td {
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        #editButton,
+        #deleteButton,
+        #cancelbutton,
+        #cancelEditButton,
+        #submitEditButton {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 576px) {
+
+        th,
+        td {
+            padding: 4px;
+            font-size: 12px;
+        }
+
+        #editButton,
+        #deleteButton,
+        #cancelbutton,
+        #cancelEditButton,
+        #submitEditButton {
+            padding: 3px 6px;
+            font-size: 10px;
+        }
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+        }
+
+        th,
+        td {
+            box-sizing: border-box;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        tr {
+            margin-bottom: 10px;
+        }
+    }
 
 /* Media Queries for responsiveness */
 

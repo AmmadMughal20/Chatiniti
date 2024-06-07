@@ -37,6 +37,9 @@
     /* Chat Header */
     .chat-header {
         padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         background-color: #ccc;
         border-bottom: 1px solid #ccc;
     }
@@ -213,6 +216,10 @@
                 <p class="last-sceen">Last seen: {{ lastLogin }}</p>
                 {% endif %}
             </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+                <i class="fas fa-phone-volume"></i>
+                <i class="fa-solid fa-video"></i>
+            </div>
         </div>
         <div class="chat-messages" id="chat-messages">
             {% if chat_history %}
@@ -256,6 +263,12 @@
     </div>
     <div id="user-status"></div>
 </div>
+<!-- <div class="chat-container">
+    <video id="localVideo" autoplay muted></video>
+    <video id="remoteVideo" autoplay></video>
+    <button id="callButton">Call</button>
+    <button id="answerButton" style="display:none;">Answer</button>
+</div> -->
 {% else %}
 <div>
     Login to view chats
@@ -263,9 +276,99 @@
 {%endif%}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+
+        // const localStream = document.getElementById('localVideo');
+        // const remoteStream = document.getElementById('remoteVideo');
+        // const callButton = document.getElementById('callButton');
+        // const answerButton = document.getElementById('answerButton');
+        // let localMediaStream;
+        // let peerConnection;
+
         var socket = io.connect('http://' + document.domain + ':' + location.port, {
             query: "user_id= {{ session['user_id'] }}"
         });
+
+        // navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+        //     .then(stream => {
+        //         localVideo.srcObject = stream;
+        //         localMediaStream = stream;
+        //     })
+        //     .catch(error => console.error('Error accessing media devices.', error));
+
+        // callButton.onclick = () => {
+        //     startCall();
+        // };
+
+        // answerButton.onclick = () => {
+        //     answerCall();
+        // };
+
+        // function startCall() {
+        //     const configuration = {
+        //         'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }]
+        //     };
+        //     peerConnection = new RTCPeerConnection(configuration);
+
+        //     localMediaStream.getTracks().forEach(track => {
+        //         peerConnection.addTrack(track, localMediaStream);
+        //     });
+
+        //     peerConnection.onicecandidate = event => {
+        //         if (event.candidate) {
+        //             socket.emit('ice_candidate', { candidate: event.candidate, conversation_id: "{{ conversation_id }}" });
+        //         }
+        //     };
+
+        //     peerConnection.ontrack = event => {
+        //         remoteVideo.srcObject = event.streams[0];
+        //     };
+
+        //     peerConnection.createOffer()
+        //         .then(offer => peerConnection.setLocalDescription(offer))
+        //         .then(() => {
+        //             socket.emit('call_user', { offer: peerConnection.localDescription, conversation_id: "{{ conversation_id }}" });
+        //         });
+        // }
+
+        // function answerCall() {
+        //     const configuration = {
+        //         'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }]
+        //     };
+        //     peerConnection = new RTCPeerConnection(configuration);
+
+        //     localMediaStream.getTracks().forEach(track => {
+        //         peerConnection.addTrack(track, localMediaStream);
+        //     });
+
+        //     peerConnection.onicecandidate = event => {
+        //         if (event.candidate) {
+        //             socket.emit('ice_candidate', { candidate: event.candidate, conversation_id: "{{ conversation_id }}" });
+        //         }
+        //     };
+
+        //     peerConnection.ontrack = event => {
+        //         remoteVideo.srcObject = event.streams[0];
+        //     };
+        // }
+
+        // socket.on('receive_call', data => {
+        //     answerButton.style.display = 'block';
+        //     peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
+        //         .then(() => peerConnection.createAnswer())
+        //         .then(answer => peerConnection.setLocalDescription(answer))
+        //         .then(() => {
+        //             socket.emit('answer_call', { answer: peerConnection.localDescription, conversation_id: "{{ conversation_id }}" });
+        //         });
+        // });
+
+        // socket.on('call_answered', data => {
+        //     peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+        // });
+
+        // socket.on('ice_candidate', data => {
+        //     const candidate = new RTCIceCandidate(data.candidate);
+        //     peerConnection.addIceCandidate(candidate);
+        // });
 
         socket.on('user_status', function (data) {
             var statusElement = document.querySelector(`.item[data-contact-id="${data.user_id}"] .status`);

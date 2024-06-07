@@ -6,7 +6,7 @@ def sendVerificationEmail(email, token):
     # Replace with actual email sending logic using Flask-Mail
     from app import mail
     verification_link = url_for('authentication.verify_email', token=token, _external=True)
-    msg = Message('Verify your email', sender='your_email@example.com', recipients=[email])
+    msg = Message('Verify your email', sender='support@chatinity.com', recipients=[email])
     msg.body = f'Click the following link to verify your email: {verification_link}'
     mail.send(msg)
 
@@ -29,7 +29,7 @@ def get_conversation_id(conversations, recipient_id):
 def send_recovery_email_to_user(email, token):
     from app import mail
     recovery_link = url_for('authentication.reset_password', token=token, _external=True)
-    msg = Message('Verify your email', sender='your_email@example.com', recipients=[email])
+    msg = Message('Reset your Chatinity password', sender='support@chatinity.com', recipients=[email])
     msg.body = f'Dear User,\n\nYou requested to reset your password. Please click on the following link to reset your password: {recovery_link}'
     mail.send(msg)
 

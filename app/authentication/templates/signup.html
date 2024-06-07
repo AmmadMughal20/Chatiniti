@@ -3,27 +3,42 @@
 {% block main %}
 <h1>Sign Up</h1>
 
-<form method="POST" action="/signup">
+<form method="POST" action="/signup" id="signupForm">
     <label for="userId">User ID:</label>
     <input type="text" id="userId" name="userId" required />
+    <div id="userIdErrorMessages" class="errorMessage"></div>
 
     <label for="name">Name:</label>
     <input type="text" id="name" name="name" required />
+    <div id="nameErrorMessages" class="errorMessage"></div>
 
     <label for="age">Age:</label>
     <input type="number" id="age" name="age" required />
+    <div id="ageErrorMessages" class="errorMessage"></div>
 
     <label for="email">Email:</label>
     <input type="email" id="email" name="email" required />
+    <div id="emailErrorMessages" class="errorMessage"></div>
 
     <label for="phone">Phone:</label>
-    <input type="tel" id="phone" name="phone" required />
+    <input type="tel" id="phone" name="phone" required maxlength="11" />
+    <div id="phoneErrorMessages" class="errorMessage"></div>
 
     <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required />
+    <div style="position: relative;">
+        <input type="password" id="password" name="password" required />
+        <i class="toggle-password fas fa-eye-slash"></i>
+    </div>
+    <div id="passwordErrorMessages" class="errorMessage"></div>
 
-    <label for="roleId">Role ID:</label>
-    <input type="number" id="roleId" name="roleId" required />
+    <label for="confirmPassword">Confirm Password:</label>
+    <div style="position: relative;">
+        <input type="password" id="confirmPassword" name="confirmPassword" required />
+        <i class="toggle-confirm-password fas fa-eye-slash"></i>
+    </div>
+    <div id="confirmPasswordErrorMessage" class="errorMessage"></div>
+
+    <input type="number" hidden id="roleId" name="roleId" value="2" />
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -36,6 +51,93 @@
     {% endwith %}
 
     <button type="submit" name="submit">Sign Up</button>
+    <button onclick="window.location.href = '/signin';" id="cancelbutton">Cancel</button>
 </form>
+
+<script>
+    // Add event listener to input event for all input fields
+    var inputFields = document.querySelectorAll('input[type=text], input[type=number], input[type=email], input[type=password], input[type=tel]');
+    inputFields.forEach(function (inputField) {
+        inputField.addEventListener('input', function (event) {
+            var fieldName = inputField.id;
+            var fieldValue = inputField.value.trim();
+            var errorMessage = '';
+            var errorContainerId = fieldName + 'ErrorMessages';
+
+            // Validate field based on its ID
+            switch (fieldName) {
+                case 'userId':
+                    if (!fieldValue) {
+                        errorMessage = 'User ID is required.';
+                    } else if (fieldValue.length < 4) {
+                        errorMessage = 'User ID must be at least 4 characters long.';
+                    } else if (!/^[a-zA-Z0-9]+$/.test(fieldValue)) {
+                        errorMessage = 'User ID must contain only letters and numbers.';
+                    } else if (/[%'@=*]/.test(fieldValue)) {
+                        errorMessage = 'User ID cannot contain special characters: %, @, =, *';
+                    }
+                    break;
+                case 'name':
+                    if (!fieldValue) {
+                        errorMessage = 'Name is required.';
+                    } else if (!/^[a-zA-Z\s]*$/.test(fieldValue)) {
+                        errorMessage = 'Name must contain only letters and spaces.';
+                    }
+                    break;
+                case 'age':
+                    if (!fieldValue) {
+                        errorMessage = 'Age is required.';
+                    } else if (fieldValue < 8 || fieldValue > 99) {
+                        errorMessage = 'Age must be between 18 and 100.';
+                    }
+                    break;
+                case 'email':
+                    if (!fieldValue) {
+                        errorMessage = 'Email is required.';
+                    } else if (!/^\S+@\S+\.\S+$/.test(fieldValue)) {
+                        errorMessage = 'Invalid email format.';
+                    }
+                    break;
+                case 'phone':
+                    if (!fieldValue) {
+                        errorMessage = 'Phone is required.';
+                    } else if (!/^\d{11}$/.test(fieldValue)) {
+                        errorMessage = 'Phone must be exactly 11 digits long.';
+                    } else if (!/^03/.test(fieldValue)) {
+                        errorMessage = 'Phone must start with "03".';
+                    } if (!/^\d+$/.test(fieldValue)) {
+                        errorMessage = 'Phone must contain only numbers.';
+                    }
+                    break;
+                case 'password':
+                    if (!fieldValue) {
+                        errorMessage = 'Password is required.';
+                    } else if (fieldValue.length < 8 || fieldValue.length > 16) {
+                        errorMessage = 'Password must be between 8 and 16 characters long.';
+                    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!#$&()*+,\-./:;<=>?@[\]^_{|}~])[A-Za-z\d!#$&()*+,\-./:;<=>?@[\]^_{|}~]+$/.test(fieldValue)) {
+                        errorMessage = 'Password must contain at least one uppercase letter, one lowercase letter, one numeric digit, and one special character.';
+                    }
+                    break;
+                case 'confirmPassword':
+                    var password = document.getElementById('password').value;
+                    if (!fieldValue) {
+                        errorMessage = 'Confirm Password is required.';
+                    } else if (password !== fieldValue) {
+                        errorMessage = 'Passwords do not match. Please try again.';
+                    }
+                    break;
+            }
+
+            // Display error message
+            var errorContainer = document.getElementById(errorContainerId);
+            errorContainer.innerHTML = ''; // Clear existing error messages
+            if (errorMessage) {
+                errorContainer.innerHTML = errorMessage;
+            }
+        });
+    });
+
+</script>
+
 
 {% endblock %}

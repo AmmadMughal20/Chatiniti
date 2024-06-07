@@ -1,12 +1,14 @@
 import re
 import secrets
-
+from abc import ABC
+from werkzeug.security import generate_password_hash, check_password_hash
 from app.authentication.authentication_validations import validate_password
 from app.db import Database
 from app.utils import sendVerificationEmail
 
-class User:
-    def __init__(self, userId, name,age, email, phoneNo, password, roleId, token, is_verified):
+class User(ABC):
+
+    def __init__(self, userId, name, age, email, phoneNo, password, roleId, token, is_verified):
         self.userId = userId
         self.name = name
         self.age = age
@@ -16,56 +18,43 @@ class User:
         self.roleId = roleId
         self.token = token
         self.is_verified = is_verified
-        
-    @staticmethod
-    def signIn(user_id, password):
+
+    @classmethod
+    def signIn(cls, user_id, password):
         db = Database()
-        query = """SELECT * FROM USERS WHERE userId=%s AND password=%s"""
-        db.execute(query, (user_id, password))
-        user = db.fetchone()
+        query = """SELECT * FROM USERS WHERE userId=%s"""
+        db.execute(query, (user_id,))
+        user_data = db.fetchone()
         db.close()
-        if user:
-            return User(*user)
+        print(user_data[5])
+        print(password)
+        print(check_password_hash(user_data[5], password), 'printing check password hash')
+        if user_data and check_password_hash(user_data[5], password):  # Assuming password is the 6th field
+            return cls(*user_data)
         return None
-    
-    @staticmethod
-    def createUser(userId, name, age, email, phoneNo, password, roleId):
+
+    @classmethod
+    def createUser(cls, userId, name, age, email, phoneNo, password, roleId):
         token = secrets.token_urlsafe(16)
+        hashed_password = generate_password_hash(password)
         sendVerificationEmail(email, token)
         db = Database()
-        insertBookSqlQuery = """INSERT INTO USERS (userId, name, age, email, phone, password, roleId, token) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
-        db.execute(insertBookSqlQuery,
-                        (
-                            userId,
-                            name,
-                            age,
-                            email,
-                            phoneNo,
-                            password,
-                            roleId,
-                            token
-                        )
+        insertUserQuery = """INSERT INTO USERS (userId, name, age, email, phone, password, roleId, token) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+        db.execute(insertUserQuery,
+                    (
+                        userId,
+                        name,
+                        age,
+                        email,
+                        phoneNo,
+                        hashed_password,
+                        roleId,
+                        token
                     )
+                )
         db.commit()
         db.close()
 
-    @staticmethod
-    def getUserById(user_Id):
-        db = Database()
-        get_user_query = """Select * from users where userid = %s;"""
-        db.execute(get_user_query, (user_Id,))
-        user = db.fetchone()
-        db.close()
-        if user:
-            return User(*user)
-        return None
-
-    def updateToken(self, token):
-        db = Database()
-        db.execute("UPDATE USERS SET token = %s WHERE userId = %s", (token, self.userId))
-        db.commit() 
-        db.close()
-        
     @staticmethod
     def getAllUsers(logged_in_user_id):
         db = Database()
@@ -86,13 +75,33 @@ class User:
         usersArray = db.fetchall()
         return usersArray
 
-    @staticmethod
-    def getUserByToken(token):
+    @classmethod
+    def getUserById(cls, user_Id):
         db = Database()
-        db.execute("SELECT userid, name, age, email, phone, password, roleid, token FROM USERS WHERE token = %s", (token,))
-        user = db.fetchone()
+        getUserQuery = """SELECT * FROM users WHERE userid = %s"""
+        db.execute(getUserQuery, (user_Id,))
+        user_data = db.fetchone()
         db.close()
-        return user
+        if user_data:
+            return cls(*user_data)
+        return None
+
+    @classmethod
+    def updateToken(cls, user_id, token):
+        db = Database()
+        db.execute("UPDATE USERS SET token = %s WHERE userId = %s", (token, user_id))
+        db.commit()
+        db.close()
+
+    @classmethod
+    def getUserByToken(cls, token):
+        db = Database()
+        db.execute("SELECT userid, name, age, email, phone, password, roleid, token, is_verified FROM USERS WHERE token = %s", (token,))
+        user_data = db.fetchone()
+        db.close()
+        if user_data:
+            return cls(*user_data)
+        return None
 
     def updateUserToTokenVerified(self):
         db = Database()
@@ -100,19 +109,36 @@ class User:
         db.commit()
         db.close()
 
-    @staticmethod
-    def update_password_by_token(token, password):
-            user = User.getUserByToken(token)
-            if user:
-                db = Database()
-                query = """UPDATE USERS SET password = %s WHERE token = %s"""
-                db.execute(query, (password, token))
-                db.commit()
-                db.close()
-    
+    @classmethod
+    def update_password_by_token(cls, token, password):
+        user = cls.getUserByToken(token)
+        if user:
+            hashed_password = generate_password_hash(password)
+            db = Database()
+            query = """UPDATE USERS SET password = %s WHERE token = %s"""
+            db.execute(query, (hashed_password, token))
+            db.commit()
+            db.close()
+
     @staticmethod
     def validate_email(email):
-        # Basic email validation using regular expression
-        # You can customize the regex pattern according to your requirements
         pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
         return re.match(pattern, email) is not None
+
+    @staticmethod
+    def deleteUser(userId):
+        db = Database()
+        delete_user_query = "DELETE FROM USERS WHERE userId = %s"
+        db.execute(delete_user_query, (userId,))
+        db.commit()
+        db.close()
+
+    @staticmethod
+    def updateUser(userId, **kwargs):
+        db = Database()
+        columns = ', '.join(f"{k} = %s" for k in kwargs.keys())
+        values = list(kwargs.values()) + [userId]
+        update_user_query = f"UPDATE USERS SET {columns} WHERE userId = %s"
+        db.execute(update_user_query, values)
+        db.commit()
+        db.close()

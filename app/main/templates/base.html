@@ -17,6 +17,10 @@
     <header>
         <nav class="nav">
             <ul class="navul">
+                <li class="navlogo">
+                    <img src="{{ url_for('static', filename='images/Chatiniti White.png') }}" alt="chatiniti"
+                        style="width: 100px; margin: 0%; padding: 0%;" />
+                </li>
                 <li class="first-element">
                     <a href="/">
                         Home
@@ -42,19 +46,23 @@
                         Chat
                     </a>
                 </li>
-                {% if 'user_id' in session %}
-                <li>
+                <li class="navusername">
+                    {% if 'user_id' in session %}
                     <a href="/logout">
                         Logout
                     </a>
-                </li>
-                {% else %}
-                <li>
+                    {% else %}
                     <a href="/signin">
                         Login
                     </a>
+                    {% endif %}
                 </li>
-                {% endif %}
+                <li>
+                    {% if 'name' in session %}
+                    <span style="color: white;">Welcome, {{ session['name'] }}</span>
+                    {% else %}
+                    {% endif %}
+                </li>
             </ul>
         </nav>
     </header>
@@ -91,7 +99,8 @@
             </div>
         </div>
     </footer>
-
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 
 </html>

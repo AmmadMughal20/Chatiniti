@@ -1,22 +1,10 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<div class="welcome-section container">
-    {% if 'name' in session %}
-    <h2>Welcome, {{ session['name'] }}</h2>
-    {% else %}
-    <h2>Welcome, Guest User</h2>
-    {% endif %}
 
-    {% if 'phone' in session %}
-    <h2>Your phone number: {{ session['phone'] }}</h2>
-    {% else %}
-    <h2>Register to view your phone number here!</h2>
-    {% endif %}
-</div>
 
 <div class="section container" id="about">
-    <h2>About Chatify</h2>
+    <h1>About Chatify</h1>
     <div class="section-content about-content">
         <p>Chatify is your go-to platform for seamless communication. Whether it's chatting with friends, collaborating
             with colleagues, or staying connected with loved ones, Chatify has got you covered.</p>
@@ -29,7 +17,7 @@
 </div>
 
 <div class="section container" id="features">
-    <h2>Key Features</h2>
+    <h2 style="text-align: center;">Key Features</h2>
     <div class="section-content" style="display: flex; flex-direction: row;">
         <div class="feature">
             <div class="icon">

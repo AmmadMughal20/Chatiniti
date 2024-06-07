@@ -36,16 +36,13 @@ def get_contact_statuses(data):
 
 @socketio.on('send_message')
 def handle_send_message_event(data):
-    print(data, 'printing data in send message socket')
     conversation_id = data['conversation_id']
     Messages.save_message(conversation_id, data['sender_id'], data['message'])
     data['conversation_id'] = conversation_id
-    print(data['conversation_id'], 'printing conv id before receive_message calling')
     socketio.emit('receive_message', data, room=conversation_id)
 
 @socketio.on('join_conversation')
 def handle_join_conversation_event(data):
-    print('joining room', data['conversation_id'])
     join_room(data['conversation_id'])
     socketio.emit('join_conversation_announcement', data, room=data['conversation_id'])
 
@@ -54,3 +51,15 @@ def handle_leave_conversation_event(data):
     leave_room(data['conversation_id'])
     socketio.emit('leave_conversation_announcement', data, room=data['conversation_id'])
 
+@socketio.on('call_user')
+def handle_call_user(data):
+    emit('receive_call', data, room=data['conversation_id'])
+
+@socketio.on('answer_call')
+def handle_answer_call(data):
+    emit('call_answered', data, room=data['conversation_id'])
+
+@socketio.on('ice_candidate')
+def handle_ice_candidate(data):
+    emit('ice_candidate', data, room=data['conversation_id'])
+    
