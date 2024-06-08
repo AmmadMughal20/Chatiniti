@@ -2,7 +2,13 @@
 
 {% block main %}
 <style>
+    #contactForm {
+        display: none;
+    }
 
+    #editForm {
+        display: none;
+    }
 </style>
 
 {% if 'user_id' in session %}
@@ -86,8 +92,8 @@
             <td>{{ contact[3] }}</td>
             <td>{{ contact[4] }}</td>
             <td>{{ contact[5] }}</td>
-            <td>{{ contact[6] }}</td>
-            <td>{{ contact[7] }}</td>
+            <td id="createdAt">{{ contact[6] }}</td>
+            <td id="updatedAt">{{ contact[7] }}</td>
             <td>
                 <button id="editButton"
                     onclick="editContact('{{ contact[0] }}', '{{ contact[1] }}', '{{ contact[2] }}', '{{ contact[3] }}', '{{ contact[4] }}', '{{ contact[5] }}')">Edit</button>
@@ -104,6 +110,41 @@
 {% endif %}
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const createdAtElements = document.querySelectorAll('#createdAt');
+        const updatedAtElements = document.querySelectorAll('#updatedAt');
+        createdAtElements.forEach(function (element) {
+            const originalDateTime = element.textContent.trim();
+            const formattedDateTime = formatDateTime(originalDateTime);
+            element.textContent = formattedDateTime;
+        });
+        updatedAtElements.forEach(function (element) {
+            const originalDateTime = element.textContent.trim();
+            const formattedDateTime = formatDateTime(originalDateTime);
+            element.textContent = formattedDateTime;
+        });
+
+    });
+
+    function formatDateTime(dateTimeStr) {
+        // Split the date and time parts
+        const [datePart, timePart] = dateTimeStr.split(' ');
+
+        // Split the date part into year, month, and day
+        const [year, month, day] = datePart.split('-');
+
+        // Split the time part into hours, minutes, and seconds (ignore milliseconds)
+        const [hour, minute, second] = timePart.split(':');
+
+        // Format the date and time parts into the desired format
+        const formattedDate = `${day}-${month}-${year}`;
+        const formattedTime = `${hour}:${minute}:${second.split('.')[0]}`; // Remove milliseconds
+
+        // Return the combined formatted date and time
+        return `${formattedDate} ${formattedTime}`;
+    }
+
+
     document.getElementById('addContactBtn').addEventListener('click', function () {
         var form = document.getElementById('contactForm');
         form.style.display = 'block';

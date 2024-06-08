@@ -1,7 +1,6 @@
 from flask import request
 from flask_socketio import emit, join_room, leave_room
 import time
-import app
 from app import socketio
 from app.models.message_model import Messages
 from app.services.conversation_services import create_new_conversation
@@ -12,8 +11,9 @@ online_users = {}
 @socketio.on('connect')
 def handle_connect():
     user_id = request.args.get('user_id')
-    online_users[user_id] = {'status': 'online', 'last_active': time.time()}
-    emit('user_status', {'user_id': user_id, 'status': 'online'}, broadcast=True)
+    if user_id:
+        online_users[user_id] = {'status': 'online', 'last_active': time.time()}
+        emit('user_status', {'user_id': user_id, 'status': 'online'}, broadcast=True)
 
 @socketio.on('disconnect')
 def handle_disconnect():

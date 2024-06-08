@@ -4,171 +4,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     integrity="sha512-VNVqs/GfSpB9O32Dch06zUb72PBkSF0Wqn40v7WFClgPdb6FmdJ+PLQbMQeDzfbNzHcz6ExmpZCEUGhT/lJZfw=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-<style>
-    /* Reset CSS */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    /* Chat Container */
-    .chat-container {
-        width: 100%;
-        display: flex;
-        height: 90vh;
-    }
-
-    /* Contacts */
-    .contacts {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-        border-right: 1px solid #ccc;
-    }
-
-    /* Chat */
-    .chat {
-        flex: 7;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Chat Header */
-    .chat-header {
-        padding: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #ccc;
-        border-bottom: 1px solid #ccc;
-    }
-
-    .last-sceen {
-        font-size: 14px;
-    }
-
-    /* Chat Messages */
-    .chat-messages {
-        width: 100%;
-        flex: 1;
-        background-color: rgb(255, 255, 255);
-        overflow-y: auto;
-        padding: 20px;
-    }
-
-    /* Chat Input */
-    .chat-input {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        border-top: 1px solid #ccc;
-    }
-
-    .chat-input input {
-        flex: 1;
-        padding: 10px;
-        margin-right: 10px;
-    }
-
-    .chat-input button {
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .contact-image {
-        width: 40px;
-        /* Adjust size as needed */
-        height: 40px;
-        /* Adjust size as needed */
-        border-radius: 50%;
-        /* Make it round */
-        margin-right: 10px;
-        /* Add space between image and name */
-    }
-
-    .item {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-    }
-
-    .name {
-        font-size: 14px;
-    }
-
-    .main-container {
-        display: inline-block;
-        /* or inline-flex */
-        width: 100%;
-        height: auto;
-        margin: 0px 0px;
-        background-color: transparent;
-        padding: 5px;
-        box-sizing: border-box;
-    }
-
-    .message-container {
-        width: auto;
-        /* min-width: 60%; */
-        margin: 5px;
-        padding: 10px;
-        border-radius: 10px;
-        /* word-wrap: break-word; */
-    }
-
-    .sent {
-        background-color: #DCF8C6;
-        float: right;
-    }
-
-    .received {
-        background-color: #00b3ff;
-        float: left;
-    }
-
-    .message {
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-
-    .time-div {
-        display: flex;
-        justify-content: flex-end;
-        font-size: 12px;
-    }
-
-    .clearfix::after {
-        content: "";
-        display: table;
-        clear: both;
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: grey;
-    }
-
-    #contact_search {
-        width: 100%;
-        padding: 10px;
-        padding-left: 35px;
-    }
-
-    .status {
-        margin-left: 10px;
-        font-size: 12px;
-        color: red;
-        /* Default to offline color */
-    }
-</style>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Get all contact list items
@@ -201,7 +36,7 @@
         <ul>
             {% for contact in contacts %}
             <li data-contact-id="{{ contact['user_id'] }}" class="item">
-                <img src="{{ contact.image }}" alt="{{ contact['name'] }}" class="contact-image">
+                <img src="{{ contact.image }}" alt="{{ contact.name }}" class="contact-image">
                 <span class="name">{{ contact.name }}</span>
                 <span class="status">Offline</span>
             </li>
@@ -257,8 +92,10 @@
         </div>
         <div class="chat-input">
             <input type="text" id="message-input" placeholder="Type a message...">
-            <button id="send-btn">Send</button>
-            <button id="attach-btn">Attach</button>
+            <div class="message-buttons">
+                <button id="send-btn">Send</button>
+                <button id="attach-btn">Attach</button>
+            </div>
         </div>
     </div>
     <div id="user-status"></div>
@@ -277,98 +114,9 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
-        // const localStream = document.getElementById('localVideo');
-        // const remoteStream = document.getElementById('remoteVideo');
-        // const callButton = document.getElementById('callButton');
-        // const answerButton = document.getElementById('answerButton');
-        // let localMediaStream;
-        // let peerConnection;
-
         var socket = io.connect('http://' + document.domain + ':' + location.port, {
             query: "user_id= {{ session['user_id'] }}"
         });
-
-        // navigator.mediaDevices.getUserMedia({ video: false, audio: true })
-        //     .then(stream => {
-        //         localVideo.srcObject = stream;
-        //         localMediaStream = stream;
-        //     })
-        //     .catch(error => console.error('Error accessing media devices.', error));
-
-        // callButton.onclick = () => {
-        //     startCall();
-        // };
-
-        // answerButton.onclick = () => {
-        //     answerCall();
-        // };
-
-        // function startCall() {
-        //     const configuration = {
-        //         'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }]
-        //     };
-        //     peerConnection = new RTCPeerConnection(configuration);
-
-        //     localMediaStream.getTracks().forEach(track => {
-        //         peerConnection.addTrack(track, localMediaStream);
-        //     });
-
-        //     peerConnection.onicecandidate = event => {
-        //         if (event.candidate) {
-        //             socket.emit('ice_candidate', { candidate: event.candidate, conversation_id: "{{ conversation_id }}" });
-        //         }
-        //     };
-
-        //     peerConnection.ontrack = event => {
-        //         remoteVideo.srcObject = event.streams[0];
-        //     };
-
-        //     peerConnection.createOffer()
-        //         .then(offer => peerConnection.setLocalDescription(offer))
-        //         .then(() => {
-        //             socket.emit('call_user', { offer: peerConnection.localDescription, conversation_id: "{{ conversation_id }}" });
-        //         });
-        // }
-
-        // function answerCall() {
-        //     const configuration = {
-        //         'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }]
-        //     };
-        //     peerConnection = new RTCPeerConnection(configuration);
-
-        //     localMediaStream.getTracks().forEach(track => {
-        //         peerConnection.addTrack(track, localMediaStream);
-        //     });
-
-        //     peerConnection.onicecandidate = event => {
-        //         if (event.candidate) {
-        //             socket.emit('ice_candidate', { candidate: event.candidate, conversation_id: "{{ conversation_id }}" });
-        //         }
-        //     };
-
-        //     peerConnection.ontrack = event => {
-        //         remoteVideo.srcObject = event.streams[0];
-        //     };
-        // }
-
-        // socket.on('receive_call', data => {
-        //     answerButton.style.display = 'block';
-        //     peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
-        //         .then(() => peerConnection.createAnswer())
-        //         .then(answer => peerConnection.setLocalDescription(answer))
-        //         .then(() => {
-        //             socket.emit('answer_call', { answer: peerConnection.localDescription, conversation_id: "{{ conversation_id }}" });
-        //         });
-        // });
-
-        // socket.on('call_answered', data => {
-        //     peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-        // });
-
-        // socket.on('ice_candidate', data => {
-        //     const candidate = new RTCIceCandidate(data.candidate);
-        //     peerConnection.addIceCandidate(candidate);
-        // });
 
         socket.on('user_status', function (data) {
             var statusElement = document.querySelector(`.item[data-contact-id="${data.user_id}"] .status`);
@@ -389,9 +137,14 @@
             }
         });
 
-        function checkUserStatus(userId) {
-            socket.emit('check_status', { user_id: userId });
+        // Request statuses of all contacts
+        function getContactStatuses() {
+            var contactIds = Array.from(document.querySelectorAll('.item')).map(item => item.dataset.contactId);
+            socket.emit('get_contact_statuses', { contact_ids: contactIds });
         }
+
+        // Call getContactStatuses on page load
+        getContactStatuses();
 
         socket.on('status_response', function (data) {
             var statusDiv = document.getElementById('user-status');
@@ -527,4 +280,8 @@
         }
     });
 </script>
+{% endblock %}
+
+{% block hide_footer %}
+{% set hide_footer = true %}
 {% endblock %}

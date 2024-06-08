@@ -29,7 +29,7 @@ def get_conversation_id(conversations, recipient_id):
 def send_recovery_email_to_user(email, token):
     from app import mail
     recovery_link = url_for('authentication.reset_password', token=token, _external=True)
-    msg = Message('Reset your Chatinity password', sender='support@chatinity.com', recipients=[email])
+    msg = Message('Reset your Chatiniti password', sender='support@chatinity.com', recipients=[email])
     msg.body = f'Dear User,\n\nYou requested to reset your password. Please click on the following link to reset your password: {recovery_link}'
     mail.send(msg)
 

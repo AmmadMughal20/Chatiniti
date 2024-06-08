@@ -71,12 +71,13 @@
         {% block main %}
         {% endblock %}
     </div>
-
+    {% block hide_footer %}{% endblock %}
+    {% if not hide_footer %}
     <footer>
         <div class="footer-content">
             <div class="app-info">
-                <h4>Name of Application</h4>
-                <p>A brief description of the application.</p>
+                <img src="{{ url_for('static', filename='images/Chatiniti.png') }}" alt="Chatiniti" />
+                <p>A go-to platform for seamless communication.</p>
             </div>
             <div class="quick-links">
                 <h4>Quick Links</h4>
@@ -99,6 +100,7 @@
             </div>
         </div>
     </footer>
+    {% endif %}
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

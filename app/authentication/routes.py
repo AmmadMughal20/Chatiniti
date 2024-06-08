@@ -83,8 +83,8 @@ def signup():
             flash('Role is empty!', 'error')
             return render_template('signup.html')
 
-        userIdValidation = validate_userId(new_user_id)
-        if userIdValidation == 1:
+        alreadyExistedUser = User.getUserById(new_user_id)
+        if alreadyExistedUser:
             flash("UserId already exists!", 'error')
             return render_template('signup.html')
 
@@ -106,20 +106,22 @@ def signup():
             flash("Age cannot be 0 or empty!", 'error')
             return render_template('signup.html')
 
+        alreadyExistedEmail = User.getUserByEmail(new_user_email)
+        if alreadyExistedEmail:
+            flash("Email already exists!", 'error')
+            return render_template('signup.html')
+            
         userEmailValidation = validate_email(new_user_email)
         if userEmailValidation == 1:
             flash("Invalid email format!", 'error')
             return render_template('signup.html')
-            
-        if userEmailValidation == 2:
-            flash("Email already exists!", 'error')
-            return render_template('signup.html')
 
-        userPhoneValidation = validate_phone(new_user_phone)
-        if userPhoneValidation == 1:
+        alreadyExistedPhone = User.getUserByPhone(new_user_phone)
+        if alreadyExistedPhone:
             flash("Phone already exists!", 'error')
             return render_template('signup.html')
             
+        userPhoneValidation = validate_phone(new_user_phone)
         if userPhoneValidation == 2:
             flash("Phone cannot be empty!", 'error')
             return render_template('signup.html')
@@ -138,7 +140,7 @@ def signup():
             flash("Role doesn't exist. Enter correct role id!", 'error')
             return render_template('signup.html')
 
-        if all(v == 0 for v in [userIdValidation, userNameValidation, userAgeValidation, userEmailValidation, userPhoneValidation, userPasswordValidation, userRoleValidation]):
+        if all(v == 0 for v in [userNameValidation, userAgeValidation, userEmailValidation, userPhoneValidation, userPasswordValidation, userRoleValidation]):
             User.createUser(new_user_id, new_user_name, new_user_age, new_user_email, new_user_phone, new_user_password, new_user_role)
             flash('Account created! Check your email!', 'success')
             return render_template('login.html')

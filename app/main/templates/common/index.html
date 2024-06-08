@@ -1,29 +1,51 @@
 {% extends 'base.html' %}
 
 {% block main %}
+<!-- <div class="container" id="welcome-section">
+    {% if 'name' in session %}
+    <h2>Welcome, {{ session['name'] }}</h2>
+    {% else %}
+    <h2>Welcome, Guest User</h2>
+    {% endif %}
 
+    {% if 'phone' in session %}
+    <h2>Your phone number: {{ session['phone'] }}</h2>
+    {% else %}
+    <h2>Register to view your phone number here!</h2>
+    {% endif %}
+</div> -->
 
 <div class="section container" id="about">
-    <h1>About Chatify</h1>
-    <div class="section-content about-content">
-        <p>Chatify is your go-to platform for seamless communication. Whether it's chatting with friends, collaborating
-            with colleagues, or staying connected with loved ones, Chatify has got you covered.</p>
-        <p>With advanced features, secure messaging, and user-friendly interface, Chatify makes communication effortless
-            and enjoyable.</p>
+    <h2>About Chatiniti</h2>
+    <div class="about-content">
+        <p>Chatiniti is your go-to platform for seamless communication. Whether it's chatting with friends,
+            collaborating
+            with colleagues, or staying connected with loved ones, Chatiniti has got you covered.</p>
+        <p>With advanced features, secure messaging, and a user-friendly interface, Chatiniti makes communication
+            effortless and
+            enjoyable. Experience the best in connectivity with Chatiniti, where intuitive design meets robust
+            functionality. Stay
+            ahead with real-time notifications, customizable chat options, and top-notch privacy controls.</p>
     </div>
     <div class="tech-image">
         <img src="{{ url_for('static', filename='images/test.png') }}" alt="Tech Image">
     </div>
 </div>
 
-<div class="section container" id="features">
-    <h2 style="text-align: center;">Key Features</h2>
-    <div class="section-content" style="display: flex; flex-direction: row;">
+<div class="container" id="features">
+    <h2>Key Features</h2>
+    <div class="feature-content">
+        <p>With advanced features, secure messaging, and user-friendly interface, Chatiniti makes communication
+            effortless
+            and enjoyable.</p>
+    </div>
+    <div class="section-content">
         <div class="feature">
             <div class="icon">
                 <i class="fas fa-comment"></i>
             </div>
             <div class="feature-details">
+                <hr />
                 <h3>Instant Messaging</h3>
                 <p>Chat in real-time with friends and colleagues.</p>
             </div>
@@ -33,6 +55,7 @@
                 <i class="fas fa-users"></i>
             </div>
             <div class="feature-details">
+                <hr />
                 <h3>Group Chats</h3>
                 <p>Create group chats for collaborative discussions.</p>
             </div>
@@ -42,6 +65,7 @@
                 <i class="fas fa-video"></i>
             </div>
             <div class="feature-details">
+                <hr />
                 <h3>Video Calls</h3>
                 <p>Make video calls with crystal-clear quality.</p>
             </div>
@@ -51,31 +75,78 @@
 
 <div class="section container" id="testimonials">
     <h2>Testimonials</h2>
+    <div class="testimonials-content">
+        <p>With advanced features, secure messaging, and user-friendly interface, Chatiniti makes communication
+            effortless
+            and enjoyable.</p>
+    </div>
     <div class="testimonial-slider-container">
         <div class="testimonial-slider">
             <div class="testimonial-slide">
-                <p>"Great service!"</p>
-                <p>- John Doe</p>
+                <div class="slide-image">
+                    <img src="{{ url_for('static', filename='images/User1.jpg') }}" alt="Tech Image">
+                </div>
+                <div class="slide-content">
+                    <p>"Chatiniti has revolutionized our customer support with its seamless live chat integration,
+                        boosting our response times
+                        significantly. Our clients love the real-time assistance and so do we!"</p>
+                </div>
+                <p class="testimonial-name">- John Doe</p>
             </div>
             <div class="testimonial-slide">
-                <p>"Highly recommend this company."</p>
-                <p>- Jane Smith</p>
+                <div class="slide-image">
+                    <img src="{{ url_for('static', filename='images/User2.jpg') }}" alt="Tech Image">
+                </div>
+                <div class="slide-content">
+                    <p>"Using Chatiniti has been a game-changer for our business. The intuitive interface and robust
+                        features make managing
+                        customer interactions a breeze."</p>
+                </div>
+                <p class="testimonial-name">- Jane Smith</p>
             </div>
             <div class="testimonial-slide">
-                <p>"Exceptional experience!"</p>
-                <p>- Bob Johnson</p>
+                <div class="slide-image">
+                    <img src="{{ url_for('static', filename='images/User3.jpg') }}" alt="Tech Image">
+                </div>
+                <div class="slide-content">
+                    <p>"Chatiniti has enhanced our communication efficiency, allowing us to handle multiple inquiries
+                        simultaneously without
+                        breaking a sweat. It's the perfect tool for any support team."</p>
+                </div>
+                <p class="testimonial-name">- Bob Johnson</p>
             </div>
             <div class="testimonial-slide">
-                <p>"Great service!"</p>
-                <p>- John Doe</p>
+                <div class="slide-image">
+                    <img src="{{ url_for('static', filename='images/User4.jpg') }}" alt="Tech Image">
+                </div>
+                <div class="slide-content">
+                    <p>"The real-time chat capabilities of Chatiniti have drastically improved our customer satisfaction
+                        rates. It's
+                        user-friendly and incredibly reliable.!"</p>
+                </div>
+                <p class="testimonial-name">- John Doe</p>
             </div>
             <div class="testimonial-slide">
-                <p>"Highly recommend this company."</p>
-                <p>- Jane Smith</p>
+                <div class="slide-image">
+                    <img src="{{ url_for('static', filename='images/User5.jpg') }}" alt="Tech Image">
+                </div>
+                <div class="slide-content">
+                    <p>"Thanks to Chatiniti, our team can provide instant support, leading to happier customers and
+                        increased retention. It's an
+                        indispensable part of our toolkit."</p>
+                </div>
+                <p class="testimonial-name">- Jane Smith</p>
             </div>
             <div class="testimonial-slide">
-                <p>"Exceptional experience!"</p>
-                <p>- Bob Johnson</p>
+                <div class="slide-image">
+                    <img src="{{ url_for('static', filename='images/User6.jpg') }}" alt="Tech Image">
+                </div>
+                <div class="slide-content">
+                    <p>"With Chatiniti, we've seen a remarkable improvement in our customer engagement. The easy-to-use
+                        platform has streamlined
+                        our support process wonderfully."</p>
+                </div>
+                <p class="testimonial-name">- Bob Johnson</p>
             </div>
             <!-- Add more testimonials as needed -->
         </div>
@@ -88,64 +159,66 @@
 
 <div class="section container" id="pricing">
     <h2>Pricing</h2>
+    <div class="pricing-content">
+        <p>With advanced features, secure messaging, and user-friendly interface, Chatiniti makes communication
+            effortless
+            and enjoyable.</p>
+    </div>
     <div class="pricing-table">
         <div class="pricing-card">
-            <h3>Basic</h3>
-            <p>$9.99 / month</p>
-            <ul>
+            <div class="pricing-header">
+                <h3>Basic</h3>
+                <p class="price">$9.99 / month</p>
+            </div>
+            <ul class="features-list">
                 <li>Instant Messaging</li>
                 <li>Up to 5 Group Chats</li>
                 <li>No Video Calls</li>
             </ul>
+            <button class="btn">Sign Up</button>
         </div>
         <div class="pricing-card">
-            <h3>Standard</h3>
-            <p>$19.99 / month</p>
-            <ul>
+            <div class="pricing-header">
+                <h3>Standard</h3>
+                <p class="price">$19.99 / month</p>
+            </div>
+            <ul class="features-list">
                 <li>Instant Messaging</li>
                 <li>Unlimited Group Chats</li>
                 <li>Video Calls</li>
             </ul>
+            <button class="btn">Sign Up</button>
         </div>
         <div class="pricing-card">
-            <h3>Premium</h3>
-            <p>$29.99 / month</p>
-            <ul>
+            <div class="pricing-header">
+                <h3>Premium</h3>
+                <p class="price">$29.99 / month</p>
+            </div>
+            <ul class="features-list">
                 <li>Instant Messaging</li>
                 <li>Unlimited Group Chats</li>
                 <li>Video Calls</li>
                 <li>Custom Emojis</li>
             </ul>
+            <button class="btn">Sign Up</button>
         </div>
     </div>
 </div>
 
-<div class="section container" id="projects">
-    <h2>Our Projects</h2>
-    <div class="projects-cards">
-        <div class="card">
-            <h3>Project X</h3>
-            <p>A revolutionary chat platform that redefines communication.</p>
-        </div>
-        <div class="card">
-            <h3>Project Y</h3>
-            <p>Empowering teams to collaborate effectively from anywhere.</p>
-        </div>
-        <div class="card">
-            <h3>Project Z</h3>
-            <p>Bringing people closer together through innovative technology.</p>
-        </div>
-    </div>
-</div>
-
-<div class="section container" id="contact">
+<div class="container" id="contact">
     <h2>Contact Us</h2>
     <form method="POST" action="/send-email">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+            <div style="width: 50%;">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
+            <div style="width: 50%;">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+        </div>
 
         <label for="message">Message:</label>
         <textarea id="message" name="message" required></textarea>
@@ -160,19 +233,35 @@
         const slider = document.querySelector('.testimonial-slider');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
-        const slideWidth = slider.clientWidth;
-        const slides = slider.children;
+        let slideWidth = sliderContainer.clientWidth / 3; // Show 3 slides at a time
+        let slides = Array.from(slider.children);
         const totalSlides = slides.length;
-        let slideIndex = 0;
+
+        // Clone the first and last 3 slides
+        const firstSlidesClone = [];
+        const lastSlidesClone = [];
+        for (let i = 0; i < 3; i++) {
+            firstSlidesClone.push(slides[i].cloneNode(true));
+            lastSlidesClone.push(slides[totalSlides - 1 - i].cloneNode(true));
+        }
+        lastSlidesClone.reverse(); // Keep order correct
+
+        firstSlidesClone.forEach(slide => slider.appendChild(slide));
+        lastSlidesClone.forEach(slide => slider.insertBefore(slide, slides[0]));
+
+        // Update slides collection after adding clones
+        slides = Array.from(slider.children);
+
+        let slideIndex = 3;
         let sliding = false;
+
+        // Set initial position to the first set of slides (index 3)
+        slider.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
 
         function slideNext() {
             if (!sliding) {
                 sliding = true;
-                slideIndex++;
-                if (slideIndex >= totalSlides) {
-                    slideIndex = 0;
-                }
+                slideIndex += 3;
                 slider.style.transition = 'transform 0.5s ease-in-out';
                 slider.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
             }
@@ -181,10 +270,7 @@
         function slidePrev() {
             if (!sliding) {
                 sliding = true;
-                slideIndex--;
-                if (slideIndex < 0) {
-                    slideIndex = totalSlides - 1;
-                }
+                slideIndex -= 3;
                 slider.style.transition = 'transform 0.5s ease-in-out';
                 slider.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
             }
@@ -200,14 +286,14 @@
 
         slider.addEventListener('transitionend', function () {
             sliding = false;
-            if (slideIndex === totalSlides - 1) {
+            if (slideIndex >= totalSlides + 3) {
                 slider.style.transition = 'none';
-                slider.style.transform = `translateX(-${slideWidth}px)`;
-                slideIndex = 0;
-            } else if (slideIndex === 0) {
+                slideIndex = 3;
+                slider.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
+            } else if (slideIndex < 3) {
                 slider.style.transition = 'none';
-                slider.style.transform = `translateX(-${(totalSlides - 2) * slideWidth}px)`;
-                slideIndex = totalSlides - 2;
+                slideIndex = totalSlides;
+                slider.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
             }
         });
 
@@ -218,7 +304,14 @@
         }
 
         autoSlide();
+
+        // Update slideWidth on window resize
+        window.addEventListener('resize', function () {
+            slideWidth = sliderContainer.clientWidth / 3;
+            slider.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
+        });
     });
+
 
 
 

@@ -3,40 +3,40 @@
 {% block main %}
 <h1>Sign Up</h1>
 
-<form method="POST" action="/signup" id="signupForm">
+<form method="POST" action="/signup" id="signupForm" style="width: 25%;">
     <label for="userId">User ID:</label>
     <input type="text" id="userId" name="userId" required />
-    <div id="userIdErrorMessages" class="errorMessage"></div>
+    <div id="userIdErrorMessages" class="error"></div>
 
     <label for="name">Name:</label>
     <input type="text" id="name" name="name" required />
-    <div id="nameErrorMessages" class="errorMessage"></div>
+    <div id="nameErrorMessages" class="error"></div>
 
     <label for="age">Age:</label>
     <input type="number" id="age" name="age" required />
-    <div id="ageErrorMessages" class="errorMessage"></div>
+    <div id="ageErrorMessages" class="error"></div>
 
     <label for="email">Email:</label>
     <input type="email" id="email" name="email" required />
-    <div id="emailErrorMessages" class="errorMessage"></div>
+    <div id="emailErrorMessages" class="error"></div>
 
     <label for="phone">Phone:</label>
     <input type="tel" id="phone" name="phone" required maxlength="11" />
-    <div id="phoneErrorMessages" class="errorMessage"></div>
+    <div id="phoneErrorMessages" class="error"></div>
 
     <label for="password">Password:</label>
     <div style="position: relative;">
         <input type="password" id="password" name="password" required />
-        <i class="toggle-password fas fa-eye-slash"></i>
+        <i class="toggle-password fas fa-eye-slash" onclick="togglePasswordVisibility('password')"></i>
     </div>
-    <div id="passwordErrorMessages" class="errorMessage"></div>
+    <div id="passwordErrorMessages" class="error"></div>
 
     <label for="confirmPassword">Confirm Password:</label>
     <div style="position: relative;">
         <input type="password" id="confirmPassword" name="confirmPassword" required />
-        <i class="toggle-confirm-password fas fa-eye-slash"></i>
+        <i class="toggle-password fas fa-eye-slash" onclick="togglePasswordVisibility('confirmPassword')"></i>
     </div>
-    <div id="confirmPasswordErrorMessage" class="errorMessage"></div>
+    <div id="confirmPasswordErrorMessages" class="error"></div>
 
     <input type="number" hidden id="roleId" name="roleId" value="2" />
 
@@ -51,14 +51,35 @@
     {% endwith %}
 
     <button type="submit" name="submit">Sign Up</button>
-    <button onclick="window.location.href = '/signin';" id="cancelbutton">Cancel</button>
+    <button type="button" onclick="window.location.href = '/signin';" id="cancelbutton">Cancel</button>
 </form>
 
 <script>
     // Add event listener to input event for all input fields
-    var inputFields = document.querySelectorAll('input[type=text], input[type=number], input[type=email], input[type=password], input[type=tel]');
-    inputFields.forEach(function (inputField) {
-        inputField.addEventListener('input', function (event) {
+    document.addEventListener('DOMContentLoaded', function () {
+        var inputFields = document.querySelectorAll('input[type=text], input[type=number], input[type=email], input[type=password], input[type=tel]');
+        var form = document.getElementById('signupForm');
+
+        inputFields.forEach(function (inputField) {
+            inputField.addEventListener('input', function (event) {
+                validateField(inputField);
+            });
+        });
+
+        form.addEventListener('submit', function (event) {
+            var isFormValid = true;
+            inputFields.forEach(function (inputField) {
+                if (!validateField(inputField)) {
+                    isFormValid = false;
+                }
+            });
+
+            if (!isFormValid) {
+                event.preventDefault(); // Prevent form submission
+            }
+        });
+
+        function validateField(inputField) {
             var fieldName = inputField.id;
             var fieldValue = inputField.value.trim();
             var errorMessage = '';
@@ -105,7 +126,7 @@
                         errorMessage = 'Phone must be exactly 11 digits long.';
                     } else if (!/^03/.test(fieldValue)) {
                         errorMessage = 'Phone must start with "03".';
-                    } if (!/^\d+$/.test(fieldValue)) {
+                    } else if (!/^\d+$/.test(fieldValue)) {
                         errorMessage = 'Phone must contain only numbers.';
                     }
                     break;
@@ -133,11 +154,26 @@
             errorContainer.innerHTML = ''; // Clear existing error messages
             if (errorMessage) {
                 errorContainer.innerHTML = errorMessage;
+                return false; // Return false if there is an error
             }
-        });
+            return true; // Return true if there are no errors
+        }
     });
 
-</script>
+    function togglePasswordVisibility(fieldId) {
+        var field = document.getElementById(fieldId);
+        var toggleIcon = field.nextElementSibling;
 
+        if (field.type === 'password') {
+            field.type = 'text';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        } else {
+            field.type = 'password';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        }
+    }
+</script>
 
 {% endblock %}

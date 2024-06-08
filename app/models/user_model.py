@@ -87,6 +87,30 @@ class User(ABC):
         return None
 
     @classmethod
+    def getUserByEmail(cls, email):
+        db = Database()
+        userByEmailQuery = "Select * from users where email = %s"
+        db.execute(userByEmailQuery, (email,))
+        user_data = db.fetchone()
+        db.close()
+        if user_data:
+            return User(*user_data)
+        else:
+            return None
+
+    @classmethod
+    def getUserByPhone(cls, phone):
+        db = Database()
+        getUserByPhoneQuery = "Select * from users where phone = %s"
+        db.execute(getUserByPhoneQuery, (phone,))
+        user_data = db.fetchone()
+        db.close()
+        if user_data:
+            return User(*user_data)
+        else:
+            return None
+        
+    @classmethod
     def updateToken(cls, user_id, token):
         db = Database()
         db.execute("UPDATE USERS SET token = %s WHERE userId = %s", (token, user_id))
