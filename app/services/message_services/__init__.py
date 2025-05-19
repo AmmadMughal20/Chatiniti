@@ -5,7 +5,6 @@ from app.services.conversation_services import create_new_conversation
 import random
 
 def save_message(conversation_id, sender_id, message):
-    print(conversation_id, 'printing conversaio_id in save message')
     db = Database()
     createNewConversationPartcipent(sender_id, conversation_id)
     db.execute('''

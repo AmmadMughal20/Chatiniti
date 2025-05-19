@@ -6,8 +6,10 @@
 <form method="POST" action="/signin" style="width: 25%;">
     <input type="text" placeholder="username" required id="username-input" name="userId" />
     <div style="position: relative;">
-        <input type="password" placeholder="password" id="password" name="password" required />
-        <i class="toggle-password fas fa-eye-slash"></i>
+        <input type="password" placeholder="password" id="login-password" name="password" required />
+        <span id="login-toggle-password">
+            <i class="toggle-password fas fa-eye-slash"></i>
+        </span>
     </div>
     <div id="passwordErrorMessages" class="errorMessage"></div>
     {{message}}
@@ -31,8 +33,6 @@
             Forgot Password
         </a>
     </div>
-
-
 </form>
 
 {% endblock %}

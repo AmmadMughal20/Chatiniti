@@ -17,7 +17,6 @@ def saveNewFrinedShip(user_id1, user_id2):
     return result
 
 def updateFriendShipStatus(user_id1, user_id2, friendShipStatus):
-    print(user_id1, user_id2, friendShipStatus)
     db = Database()
     db.execute("""
         UPDATE friendships

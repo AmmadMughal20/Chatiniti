@@ -16,9 +16,6 @@ class Messages:
 
     @staticmethod
     def save_message(conversation_id, sender_id, message):
-        print(conversation_id, 'printing conversaio_id in save message')
-        print(sender_id, 'printing sender_id in save message')
-        print(message, 'printing message in save message')
         db = Database()
         ConversationParticipant.create_new_conversation_partcipent(sender_id, conversation_id)
         db.execute('''

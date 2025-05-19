@@ -8,7 +8,7 @@ from app.utils import sendVerificationEmail
 
 class User(ABC):
 
-    def __init__(self, userId, name, age, email, phoneNo, password, roleId, token, is_verified):
+    def __init__(self, userId, name, age, email, phoneNo, password, roleId, token, is_verified, is_online):
         self.userId = userId
         self.name = name
         self.age = age
@@ -18,6 +18,7 @@ class User(ABC):
         self.roleId = roleId
         self.token = token
         self.is_verified = is_verified
+        self.is_online = is_online
 
     @classmethod
     def signIn(cls, user_id, password):
@@ -26,9 +27,6 @@ class User(ABC):
         db.execute(query, (user_id,))
         user_data = db.fetchone()
         db.close()
-        print(user_data[5])
-        print(password)
-        print(check_password_hash(user_data[5], password), 'printing check password hash')
         if user_data and check_password_hash(user_data[5], password):  # Assuming password is the 6th field
             return cls(*user_data)
         return None
@@ -120,7 +118,7 @@ class User(ABC):
     @classmethod
     def getUserByToken(cls, token):
         db = Database()
-        db.execute("SELECT userid, name, age, email, phone, password, roleid, token, is_verified FROM USERS WHERE token = %s", (token,))
+        db.execute("SELECT * FROM USERS WHERE token = %s", (token,))
         user_data = db.fetchone()
         db.close()
         if user_data:

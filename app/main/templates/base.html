@@ -16,57 +16,34 @@
 <body>
     <header>
         <nav class="nav">
-            <ul class="navul">
-                <li class="navlogo">
-                    <img src="{{ url_for('static', filename='images/Chatiniti White.png') }}" alt="chatiniti"
-                        style="width: 100px; margin: 0%; padding: 0%;" />
-                </li>
+            <div class="nav-header">
+                <img id="nav-logo-imgna" src="{{ url_for('static', filename='images/Chatiniti White.png') }}"
+                    alt="chatiniti" class="nav-logo-img" />
+                <button class="nav-toggle" id="menu-toggle">&#9776;</button>
+            </div>
+            <ul class="navul" id="nav-menu">
                 <li class="first-element">
-                    <a href="/">
-                        Home
-                    </a>
+                    <a href="/">Home</a>
                 </li>
-                <li>
-                    <a href="/about">
-                        About Us
-                    </a>
-                </li>
-                <li>
-                    <a href="/contacts">
-                        Contacts
-                    </a>
-                </li>
-                <li>
-                    <a href="/users">
-                        Users
-                    </a>
-                </li>
-                <li>
-                    <a href="/chat">
-                        Chat
-                    </a>
-                </li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/contacts">Contacts</a></li>
+                <li><a href="/users">Users</a></li>
+                <li><a href="/chat">Chat</a></li>
                 <li class="navusername">
                     {% if 'user_id' in session %}
-                    <a href="/logout">
-                        Logout
-                    </a>
+                    <a href="/logout" id="logout-link">Logout</a>
                     {% else %}
-                    <a href="/signin">
-                        Login
-                    </a>
+                    <a href="/signin">Login</a>
                     {% endif %}
                 </li>
                 <li>
                     {% if 'name' in session %}
-                    <span style="color: white;">Welcome, {{ session['name'] }}</span>
-                    {% else %}
+                    <span class="welcome-text">Welcome, {{ session['name'] }}</span>
                     {% endif %}
                 </li>
             </ul>
         </nav>
     </header>
-
     <div class="landing-div">
         {% block main %}
         {% endblock %}
@@ -101,8 +78,68 @@
         </div>
     </footer>
     {% endif %}
-    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <!-- <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script> -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    {% if session['user_id'] %}
+    <script type="text/javascript">
+        const userId = {{ session['user_id'] | tojson }};
+
+        // Initialize socket connection only if userId is available
+        window.socket = io.connect('http://' + document.domain + ':' + location.port, {
+            query: "user_id=" + userId
+        });
+
+        // Optional: Emit user-online event
+        window.socket.on('connect', function () {
+            console.log("Connected via socket as user:", userId);
+            window.socket.emit('user-online', { user_id: userId });
+        });
+
+        // Toggle side menu
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menu-toggle');
+            const navMenu = document.getElementById('nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function () {
+                    navMenu.classList.toggle('show');
+                });
+            }
+
+            // Handle logout
+            const logoutLink = document.getElementById("logout-link");
+            if (logoutLink) {
+                logoutLink.addEventListener("click", function (e) {
+                    e.preventDefault();
+
+                    if (window.socket && window.socket.connected) {
+                        window.socket.emit('user-offline', { user_id: userId });
+                        window.socket.disconnect();
+                        console.log("Socket disconnected");
+                    }
+
+                    // Redirect to logout route
+                    window.location.href = "/logout";
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            socket.on('user_status', function (data) {
+                var statusElement = document.querySelector(`.item[data-contact-id="${data.user_id}"] .status`);
+                if (statusElement) {
+                    statusElement.innerText = data.status === 'online' ? 'Online' : 'Offline';
+                    statusElement.style.color = data.status === 'online' ? 'green' : 'red';
+                }
+                var statusElementTop = document.querySelector(`[data-contact-id-top="${data.user_id}"] .top-status`);
+                if (statusElementTop) {
+                    statusElementTop.innerText = data.status === 'online' ? 'Online' : 'Offline';
+                    statusElementTop.style.color = data.status === 'online' ? 'green' : 'red';
+                }
+            });
+        });
+    </script>
+    {% endif %}
 </body>
 
 </html>

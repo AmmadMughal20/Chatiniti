@@ -92,6 +92,7 @@ def chat(recepent_id=None):
     friends = []
     receiver = None
     contactName = None
+    contactId = None
     latestConversation = None
     conversation_id = None
     if 'user_id' in session:
@@ -138,9 +139,10 @@ def chat(recepent_id=None):
                 }
             messagesconverted.append(message)
         if receiver:
-            contactName = receiver.name + ' ' + receiver.userId
+            contactName = receiver.name
+            contactId = receiver.userId
                     
-    return render_template('common/chat.html', contacts=friends, chat_history=messagesconverted, contactName=contactName, conversation_id=conversation_id)
+    return render_template('common/chat.html', contacts=friends, chat_history=messagesconverted, contactName=contactName, conversation_id=conversation_id, contactId=contactId)
 
 @main.route('/addFriend', methods=['POST'])
 def addFriend():

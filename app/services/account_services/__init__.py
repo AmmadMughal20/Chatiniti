@@ -82,7 +82,6 @@ def authenticate_User_With_User_Id(userId, password):
 
     elif userIdValidation == 0 and passwordValidation == 0:
         authenticateUser = get_user_from_db_by_user_id_password(userId, password)
-        print(authenticateUser, 'printing authentication result')
         if authenticateUser == None:
             return 3
         elif authenticateUser[6] == False:

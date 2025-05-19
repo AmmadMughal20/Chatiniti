@@ -19,7 +19,6 @@ def addReceiverInConversationParticipents(receiver_id, conversation_id):
 
 def getConversationParticipent(user_id, conversation_id):
     db = Database()
-    print(conversation_id, 'printing conversation id')
     db.execute('SELECT * from CONVERSATION_PARTICIPANTS where user_id = %s AND conversation_id = %s', (user_id, conversation_id,))
     conversation = db.fetchone()
     return conversation

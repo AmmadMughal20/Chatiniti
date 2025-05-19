@@ -96,22 +96,38 @@
 
 
 document.addEventListener('DOMContentLoaded', function () {
-        const togglePassword = document.querySelector('.toggle-password');
-        const toggleConfirmPassword = document.querySelector('.toggle-confirm-password');
-        const passwordField = document.getElementById('password');
-        const confirmPasswordField = document.getElementById('confirmPassword');
-
-        togglePassword.addEventListener('click', function () {
-            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordField.setAttribute('type', type);
-            togglePassword.classList.toggle('fa-eye');
-            togglePassword.classList.toggle('fa-eye-slash');
+    const loginTogglePassword = document.getElementById('login-toggle-password');
+    const loginPasswordField = document.getElementById('login-password');
+    if (loginTogglePassword) {
+        loginTogglePassword.addEventListener('click', function () {
+            const type = loginPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            loginPasswordField.setAttribute('type', type);
+            loginTogglePassword.classList.toggle('fa-eye');
+            loginTogglePassword.classList.toggle('fa-eye-slash');
         });
+    }
 
-        toggleConfirmPassword.addEventListener('click', function () {
-            const type = confirmPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
-            confirmPasswordField.setAttribute('type', type);
-            toggleConfirmPassword.classList.toggle('fa-eye');
-            toggleConfirmPassword.classList.toggle('fa-eye-slash');
+    const resetToggleConfirmPassword = document.getElementById('reset-toggle-confirm-password');
+    const resetConfirmPasswordField = document.getElementById('reset-confirm-password');
+    const resetPasswordField = document.getElementById('reset-password');
+    const resetTogglePassword = document.getElementById('reset-toggle-password');
+
+
+    if (resetToggleConfirmPassword) {
+        resetToggleConfirmPassword.addEventListener('click', function () {
+            const type = resetConfirmPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            resetConfirmPasswordField.setAttribute('type', type);
+            resetToggleConfirmPassword.classList.toggle('fa-eye');
+            resetToggleConfirmPassword.classList.toggle('fa-eye-slash');
         });
-    });
+    }
+
+    if (resetTogglePassword) {
+        resetTogglePassword.addEventListener('click', function () {
+            const type = resetPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            resetPasswordField.setAttribute('type', type);
+            resetTogglePassword.classList.toggle('fa-eye');
+            resetTogglePassword.classList.toggle('fa-eye-slash');
+        });
+    }
+});
