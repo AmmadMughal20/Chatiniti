@@ -4,20 +4,48 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     crossorigin="anonymous">
 
-<!-- Add audio elements for call handling -->
+<!-- Add audio/video elements for call handling -->
 <audio id="localAudio" autoplay muted></audio>
 <audio id="remoteAudio" autoplay></audio>
+<video id="localVideo" autoplay muted playsinline style="display: none;"></video>
+<video id="remoteVideo" autoplay playsinline style="display: none;"></video>
+
+<!-- Add ringtone audio element -->
+<audio id="ringtone" loop>
+    <source src="{{ url_for('static', filename='audio/ringtone.mp3') }}" type="audio/mpeg">
+</audio>
 
 <!-- Add call notification modal -->
 <div id="callModal" class="modal" style="display: none;">
     <div class="modal-content">
         <h3>Incoming Call</h3>
         <p id="callerName"></p>
-        <button id="acceptCall">Accept</button>
-        <button id="rejectCall">Reject</button>
+        <p id="callType"></p>
+        <div class="call-buttons">
+            <button id="acceptCall">Accept</button>
+            <button id="rejectCall">Reject</button>
+        </div>
     </div>
 </div>
 
+<!-- Add video call container -->
+<div id="videoCallContainer" class="video-call-container" style="display: none;">
+    <div class="video-grid">
+        <video id="remoteVideoFull" autoplay playsinline></video>
+        <video id="localVideoSmall" autoplay muted playsinline></video>
+    </div>
+    <div class="call-controls">
+        <button id="toggleAudio" class="control-btn">
+            <i class="fas fa-microphone"></i>
+        </button>
+        <button id="toggleVideo" class="control-btn">
+            <i class="fas fa-video"></i>
+        </button>
+        <button id="endVideoCall" class="control-btn end-call">
+            <i class="fas fa-phone-slash"></i>
+        </button>
+    </div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -45,8 +73,12 @@
         let localStream = null;
         let peerConnection = null;
         let isInCall = false;
+        let isVideoCall = false;
+        let callTimer = null;
+        let callStartTime = null;
         var userid = "{{ session['user_id'] }}";
         var conversationId = "{{ conversation_id }}";
+        const ringtone = document.getElementById('ringtone');
 
         // WebRTC configuration
         const configuration = {
@@ -55,24 +87,118 @@
             ]
         };
 
+        // Function to update call timer
+        function updateCallTimer() {
+            const now = new Date();
+            const diff = now - callStartTime;
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            const timerDisplay = document.getElementById('call-timer');
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Function to start call timer
+        function startCallTimer() {
+            callStartTime = new Date();
+            const timerDisplay = document.getElementById('call-timer');
+            timerDisplay.style.display = 'inline';
+            callTimer = setInterval(updateCallTimer, 1000);
+        }
+
+        // Function to stop call timer
+        function stopCallTimer() {
+            if (callTimer) {
+                clearInterval(callTimer);
+                callTimer = null;
+            }
+            const timerDisplay = document.getElementById('call-timer');
+            timerDisplay.style.display = 'none';
+            timerDisplay.textContent = '00:00';
+        }
+
+        // Function to play ringtone
+        function playRingtone() {
+            ringtone.play().catch(error => {
+                console.error('Error playing ringtone:', error);
+            });
+        }
+
+        // Function to stop ringtone
+        function stopRingtone() {
+            ringtone.pause();
+            ringtone.currentTime = 0;
+        }
+
+        // Function to cleanup call resources
+        function cleanupCallResources() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            isInCall = false;
+            isVideoCall = false;
+            document.getElementById('call-btn').style.color = '';
+            document.querySelector('#call-btn i').className = 'fas fa-phone-volume';
+            document.getElementById('video-btn').style.color = '';
+            document.querySelector('#video-btn').className = 'fa-solid fa-video';
+            document.getElementById('localAudio').srcObject = null;
+            document.getElementById('remoteAudio').srcObject = null;
+            document.getElementById('localVideo').srcObject = null;
+            document.getElementById('remoteVideo').srcObject = null;
+            document.getElementById('localVideoSmall').srcObject = null;
+            document.getElementById('remoteVideoFull').srcObject = null;
+            document.getElementById('videoCallContainer').style.display = 'none';
+            stopCallTimer();
+            stopRingtone();
+        }
+
         // Handle phone icon click
         let callBtn = document.getElementById('call-btn');
         if (callBtn) {
             callBtn.addEventListener('click', function () {
-                console.log('call btn clicked')
                 if (!isInCall) {
-                    startCall();
+                    startCall(false);
                 } else {
                     endCall();
                 }
             });
         }
 
-        async function startCall() {
+        // Handle video icon click
+        let videoBtn = document.getElementById('video-btn');
+        if (videoBtn) {
+            videoBtn.addEventListener('click', function () {
+                if (!isInCall) {
+                    startCall(true);
+                } else {
+                    endCall();
+                }
+            });
+        }
+
+        async function startCall(video) {
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                console.log(localStream, 'printing localStream')
-                document.getElementById('localAudio').srcObject = localStream;
+                // Cleanup any existing resources first
+                cleanupCallResources();
+
+                // Request appropriate media
+                const constraints = {
+                    audio: true,
+                    video: video
+                };
+
+                localStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                if (video) {
+                    document.getElementById('localVideo').srcObject = localStream;
+                    document.getElementById('localVideoSmall').srcObject = localStream;
+                } else {
+                    document.getElementById('localAudio').srcObject = localStream;
+                }
 
                 peerConnection = new RTCPeerConnection(configuration);
 
@@ -88,21 +214,36 @@
                 socket.emit('call_user', {
                     conversation_id: conversationId,
                     offer: offer,
-                    caller_id: userid
+                    caller_id: userid,
+                    is_video: video
                 });
 
                 setupPeerConnectionHandlers();
                 isInCall = true;
-                document.getElementById('call-btn').style.color = 'green';
+                isVideoCall = video;
+
+                if (video) {
+                    document.getElementById('video-btn').style.color = 'green';
+                    document.querySelector('#video-btn').className = 'fas fa-video-slash';
+                } else {
+                    document.getElementById('call-btn').style.color = 'green';
+                    document.querySelector('#call-btn i').className = 'fas fa-phone-slash';
+                }
             } catch (error) {
                 console.error('Error starting call:', error);
-                alert('Could not start call. Please check your microphone permissions.');
+                alert('Could not start call. Please check your camera/microphone permissions.');
+                cleanupCallResources();
             }
         }
 
         function setupPeerConnectionHandlers() {
             peerConnection.ontrack = (event) => {
-                document.getElementById('remoteAudio').srcObject = event.streams[0];
+                if (isVideoCall) {
+                    document.getElementById('remoteVideo').srcObject = event.streams[0];
+                    document.getElementById('remoteVideoFull').srcObject = event.streams[0];
+                } else {
+                    document.getElementById('remoteAudio').srcObject = event.streams[0];
+                }
             };
 
             peerConnection.onicecandidate = (event) => {
@@ -116,17 +257,7 @@
         }
 
         function endCall() {
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-            }
-            if (peerConnection) {
-                peerConnection.close();
-            }
-            isInCall = false;
-            document.getElementById('call-btn').style.color = '';
-            document.getElementById('localAudio').srcObject = null;
-            document.getElementById('remoteAudio').srcObject = null;
-
+            cleanupCallResources();
             socket.emit('end_call', {
                 conversation_id: conversationId
             });
@@ -135,13 +266,30 @@
         // Handle incoming call
         socket.on('receive_call', async function (data) {
             if (data.caller_id !== userid) {
+                // Cleanup any existing resources first
+                cleanupCallResources();
+
                 document.getElementById('callModal').style.display = 'block';
                 document.getElementById('callerName').textContent = 'Incoming call...';
+                document.getElementById('callType').textContent = data.is_video ? 'Video Call' : 'Audio Call';
+                playRingtone();
 
                 document.getElementById('acceptCall').onclick = async function () {
                     try {
-                        localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        document.getElementById('localAudio').srcObject = localStream;
+                        const constraints = {
+                            audio: true,
+                            video: data.is_video
+                        };
+
+                        localStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                        if (data.is_video) {
+                            document.getElementById('localVideo').srcObject = localStream;
+                            document.getElementById('localVideoSmall').srcObject = localStream;
+                            document.getElementById('videoCallContainer').style.display = 'block';
+                        } else {
+                            document.getElementById('localAudio').srcObject = localStream;
+                        }
 
                         peerConnection = new RTCPeerConnection(configuration);
 
@@ -161,16 +309,28 @@
                         });
 
                         document.getElementById('callModal').style.display = 'none';
+                        stopRingtone();
                         isInCall = true;
-                        document.getElementById('call-btn').style.color = 'green';
+                        isVideoCall = data.is_video;
+
+                        if (data.is_video) {
+                            document.getElementById('video-btn').style.color = 'green';
+                            document.querySelector('#video-btn').className = 'fas fa-video-slash';
+                        } else {
+                            document.getElementById('call-btn').style.color = 'green';
+                            document.querySelector('#call-btn i').className = 'fas fa-phone-slash';
+                        }
+                        startCallTimer();
                     } catch (error) {
                         console.error('Error accepting call:', error);
-                        alert('Could not accept call. Please check your microphone permissions.');
+                        alert('Could not accept call. Please check your camera/microphone permissions.');
+                        cleanupCallResources();
                     }
                 };
 
                 document.getElementById('rejectCall').onclick = function () {
                     document.getElementById('callModal').style.display = 'none';
+                    stopRingtone();
                     socket.emit('reject_call', {
                         conversation_id: conversationId
                     });
@@ -178,12 +338,23 @@
             }
         });
 
-        // // Handle call answer
+        // Handle call answer
         socket.on('call_answered', async function (data) {
             await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            startCallTimer();
         });
 
-        // // Handle ICE candidates
+        // Handle call end
+        socket.on('call_ended', function () {
+            cleanupCallResources();
+        });
+
+        // Handle call rejected
+        socket.on('call_rejected', function () {
+            cleanupCallResources();
+        });
+
+        // Handle ICE candidates
         socket.on('ice_candidate', async function (data) {
             if (peerConnection) {
                 try {
@@ -194,13 +365,28 @@
             }
         });
 
-        // // Handle call end
-        socket.on('call_ended', function () {
-            endCall();
+        // Handle video call controls
+        document.getElementById('toggleAudio').addEventListener('click', function () {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    this.querySelector('i').className = audioTrack.enabled ? 'fas fa-microphone' : 'fas fa-microphone-slash';
+                }
+            }
         });
-    });
 
-    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('toggleVideo').addEventListener('click', function () {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    this.querySelector('i').className = videoTrack.enabled ? 'fas fa-video' : 'fas fa-video-slash';
+                }
+            }
+        });
+
+        document.getElementById('endVideoCall').addEventListener('click', endCall);
 
         socket.on('contact_statuses', function (statuses) {
             for (var userId in statuses) {
@@ -410,6 +596,7 @@
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
+        animation: fadeIn 0.3s ease-in-out;
     }
 
     .modal-content {
@@ -442,6 +629,125 @@
 
     #call-btn {
         cursor: pointer;
+    }
+
+    #call-timer {
+        font-size: 14px;
+        color: #666;
+        margin-right: 10px;
+    }
+
+    #call-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        transition: color 0.3s ease;
+    }
+
+    #call-btn i {
+        font-size: 20px;
+    }
+
+    #call-btn:hover {
+        opacity: 0.8;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .video-call-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 1000;
+    }
+
+    .video-grid {
+        position: relative;
+        width: 100%;
+        height: calc(100% - 80px);
+    }
+
+    #remoteVideoFull {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    #localVideoSmall {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 200px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #fff;
+    }
+
+    .call-controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 15px;
+        border-radius: 30px;
+    }
+
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        background: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .control-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .control-btn i {
+        font-size: 20px;
+        color: #333;
+    }
+
+    .end-call {
+        background: #ff4444;
+    }
+
+    .end-call i {
+        color: #fff;
+    }
+
+    .call-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    #callType {
+        color: #666;
+        margin: 10px 0;
     }
 </style>
 <!-- end of call modal -->
@@ -480,8 +786,9 @@
                 {% endif %}
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+                <span id="call-timer" style="display: none;">00:00</span>
                 <button id="call-btn">
-                    <p class="fas fa-phone-volume"></p>
+                    <i class="fas fa-phone-volume"></i>
                 </button>
                 <p class="fa-solid fa-video" id="video-btn"></p>
             </div>
